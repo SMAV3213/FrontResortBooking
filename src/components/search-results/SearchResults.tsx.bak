@@ -1,0 +1,112 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../store/AuthContext';
+import type { RoomType } from '../../types/room';
+import './SearchResults.scss';
+
+interface SearchResultsProps {
+  rooms: RoomType[];
+  isLoading: boolean;
+  checkIn: string;
+  checkOut: string;
+  onBookClick?: (room: RoomType) => void;
+}
+
+export const SearchResults: React.FC<SearchResultsProps> = ({
+  rooms,
+  isLoading,
+  checkIn,
+  checkOut,
+  onBookClick,
+}) => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  const calculatePrice = (pricePerNight: number) => {
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
+    return pricePerNight * Math.max(nights, 1);
+  };
+
+  const handleBookRoom = (room: RoomType) => {
+    if (!isAuthenticated) {
+      alert('Пожалуйста, авторизуйтесь для бронирования номера');
+      navigate('/auth/login');
+      return;
+    }
+
+    if (onBookClick) {
+      onBookClick(room);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="search-results">
+        <div className="loading">Загрузка номеров...</div>
+      </div>
+    );
+  }
+
+  if (rooms.length === 0) {
+    return (
+      <div className="search-results">
+        <div className="no-results">
+          <p>Номеров не найдено по вашим критериям</p>
+          <p className="text-muted">Попробуйте изменить даты или количество гостей</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="search-results">
+      <div className="results-header">
+        <h2>Найденные номера</h2>
+        <p className="results-count">Всего номеров: {rooms.length}</p>
+      </div>
+
+      <div className="rooms-grid">
+        {rooms.map(room => (
+          <div key={room.id} className="room-card">
+            <div className="room-images">
+              {room.images && room.images.length > 0 ? (
+                <img 
+                  src={room.images[0]} 
+                  alt={room.name}
+                  className="room-image"
+                />
+              ) : (
+                <div className="room-image-placeholder">Нет изображения</div>
+              )}
+            </div>
+
+            <div className="room-details">
+              <h3>{room.name}</h3>
+              <p className="room-description">{room.description}</p>
+
+              <div className="room-info">
+                <span className="capacity">👥 {room.capacity} гост{room.capacity === 1 ? 'ь' : 'ей'}</span>
+              </div>
+
+              <div className="room-pricing">
+                <p className="price-per-night">{room.pricePerNight}₽ за ночь</p>
+                <p className="total-price">
+                  Всего: <strong>{calculatePrice(room.pricePerNight)}₽</strong>
+                </p>
+              </div>
+
+              <button 
+                className="book-button"
+                onClick={() => handleBookRoom(room)}
+              >
+                {isAuthenticated ? 'Забронировать' : 'Авторизоваться'}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};

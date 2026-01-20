@@ -1,0 +1,223 @@
+@import '../../styles/variables.scss';
+
+.header {
+  background: $bg-primary;
+  border-bottom: 1px solid $border-color;
+  box-shadow: $shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  gap: 40px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0369a1;
+  text-decoration: none;
+  transition: $transition;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #0ea5e9;
+    transform: scale(1.05);
+  }
+
+  .logo-icon {
+    font-size: 28px;
+  }
+
+  .logo-text {
+    background: linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+.mobile-menu-button {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: $text-primary;
+}
+
+.nav {
+  display: flex;
+  gap: 32px;
+  flex: 1;
+
+  .nav-link {
+    color: $text-secondary;
+    font-weight: 600;
+    font-size: 15px;
+    position: relative;
+    transition: $transition;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%);
+      transition: $transition;
+    }
+
+    &:hover {
+      color: #0369a1;
+
+      &::after {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .user-name {
+    color: $text-primary;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .logout-button {
+    @include button-base;
+    background: linear-gradient(135deg, $danger-color 0%, #dc2626 100%);
+    color: white;
+    font-weight: 600;
+    height: 36px;
+    padding: 0 16px;
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 4px 12px rgba($danger-color, 0.3);
+    }
+  }
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 12px;
+
+  .login-button {
+    @include button-base;
+    background: transparent;
+    color: #0369a1;
+    border: 2px solid #0369a1;
+    font-weight: 600;
+    height: 36px;
+    padding: 0 16px;
+    transition: $transition;
+
+    &:hover {
+      background: #0369a1;
+      color: white;
+    }
+  }
+
+  .register-button {
+    @include button-base;
+    background: linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%);
+    color: white;
+    font-weight: 600;
+    height: 36px;
+    padding: 0 16px;
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 4px 12px rgba(#0369a1, 0.3);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .header-container {
+    height: 60px;
+    gap: 16px;
+  }
+
+  .mobile-menu-button {
+    display: block;
+  }
+
+  .nav {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: $bg-primary;
+    border-bottom: 1px solid $border-color;
+    flex-direction: column;
+    gap: 0;
+    padding: 16px 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+
+    &.open {
+      max-height: 300px;
+    }
+
+    .nav-link {
+      padding: 12px 0;
+      border-bottom: 1px solid $border-color;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &::after {
+        display: none;
+      }
+    }
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+
+    .auth-buttons {
+      width: 100%;
+      flex-direction: column;
+
+      a {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  }
+
+  .logo {
+    gap: 8px;
+
+    .logo-text {
+      display: none;
+    }
+  }
+}

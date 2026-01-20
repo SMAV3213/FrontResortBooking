@@ -1,0 +1,129 @@
+// Переменные - Байкальская тема
+$primary-color: #0369a1;      // Глубокий синий (Байкал)
+$secondary-color: #0ea5e9;    // Светлый синий
+$accent-color: #06b6d4;       // Голубой (льдистый)
+$success-color: #059669;      // Зеленый (природа)
+$danger-color: #dc2626;       // Красный
+$warning-color: #ea580c;      // Оранжевый (закат)
+
+$text-primary: #1f2937;
+$text-secondary: #6b7280;
+$text-light: #9ca3af;
+$bg-primary: #ffffff;
+$bg-secondary: #f9fafb;
+$bg-tertiary: #f3f4f6;
+
+$border-color: #e5e7eb;
+$border-color-dark: #d1d5db;
+
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$border-radius: 12px;
+
+// Миксины
+@mixin button-base {
+  padding: 10px 20px;
+  border: none;
+  border-radius: $border-radius;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+@mixin form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  font-size: 14px;
+  color: $text-primary;
+  transition: $transition;
+  background-color: $bg-primary;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
+  &:disabled {
+    background-color: $bg-secondary;
+    color: $text-light;
+    cursor: not-allowed;
+  }
+}
+
+@mixin card {
+  background: $bg-primary;
+  border-radius: $border-radius;
+  border: 1px solid $border-color;
+  box-shadow: $shadow-sm;
+  padding: 20px;
+  transition: $transition;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+// Утилиты
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.flex {
+  display: flex;
+
+  &-center {
+    align-items: center;
+    justify-content: center;
+  }
+
+  &-between {
+    justify-content: space-between;
+  }
+
+  &-col {
+    flex-direction: column;
+  }
+
+  &-gap {
+    gap: 16px;
+  }
+}
+
+.grid {
+  display: grid;
+  gap: 20px;
+}
+
+.mt { margin-top: 16px; }
+.mb { margin-bottom: 16px; }
+.p { padding: 16px; }
+
+.text-center { text-align: center; }
+.text-secondary { color: $text-secondary; }
+.text-light { color: $text-light; }
+
+.hidden { display: none; }
