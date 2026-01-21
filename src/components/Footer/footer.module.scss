@@ -1,0 +1,43 @@
+@use '../../styles/variables' as v;
+
+.br-footer {
+    border-top: 1px solid v.$border;
+    background: rgba(v.$surface, 0.45);
+    border-radius: v.$radius
+}
+
+.br-footer-inner {
+    padding: 18px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.br-copy {
+    color: v.$muted;
+    font-size: 14px;
+}
+
+.br-footer-links {
+    display: flex;
+    gap: 16px;
+
+    a {
+        font-size: 14px;
+        color: rgba(v.$text, 0.85);
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+        color: v.$text;
+    }
+}
+
+@media (max-width: 700px) {
+    .br-footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

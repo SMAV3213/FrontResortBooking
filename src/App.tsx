@@ -1,23 +1,9 @@
-import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './store/AuthContext';
-import { Header } from './components/header/Header';
-import { AppRoutes } from './routes/AppRoutes';
-import './styles/global.scss';
+import { BrowserRouter, RouterProvider } from 'react-router-dom'
+import { router } from './routes/router'
+import './styles/global.scss'
 
 function App() {
-  return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="app">
-          <Header />
-          <main className="main-content">
-            <AppRoutes />
-          </main>
-        </div>
-      </BrowserRouter>
-    </AuthProvider>
-  );
+  return <RouterProvider router={router} />
 }
 
-export default App;
+export default App

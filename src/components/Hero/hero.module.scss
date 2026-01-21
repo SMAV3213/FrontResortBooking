@@ -1,0 +1,64 @@
+@use '../../styles/variables' as v;
+
+.br-hero {
+    border-radius: v.$radius;
+    overflow: hidden;
+
+    min-height: 420px;
+    display: flex;
+
+    background:
+        radial-gradient(900px 420px at 20% 10%, rgba(v.$primary, 0.25), transparent 60%),
+        linear-gradient(135deg, rgba(#fff, 0.06), rgba(#fff, 0.02));
+    border: 1px solid v.$border;
+    box-shadow: v.$shadow;
+
+}
+
+.br-hero-overlay {
+    width: 100%;
+    padding: 64px 0;
+    background: linear-gradient(180deg, rgba(v.$bg, 0.15), rgba(v.$bg, 0.55));
+}
+
+.br-hero-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.br-hero-title {
+    margin: 0;
+    font-size: 52px;
+    line-height: 1.05;
+    letter-spacing: 0.2px;
+}
+
+.br-hero-sub {
+    margin: 0;
+    color: v.$muted;
+    font-size: 16px;
+}
+
+.br-search {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr 140px;
+    gap: 10px;
+
+    padding: 12px;
+    border-radius: v.$radius;
+    background: rgba(#000, 0.18);
+    border: 1px solid v.$border;
+    backdrop-filter: blur(10px);
+}
+
+@media (max-width: 760px) {
+    .br-hero-title {
+        font-size: 38px;
+    }
+
+    .br-search {
+        grid-template-columns: 1fr;
+    }
+}

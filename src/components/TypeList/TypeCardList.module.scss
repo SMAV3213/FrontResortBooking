@@ -1,0 +1,45 @@
+@use '../../styles/variables' as v;
+
+.br-list{
+    border-radius: v.$radius;
+    overflow: hidden;
+
+    min-height: 420px;
+    display: flex;
+
+    background:
+        radial-gradient(900px 420px at 20% 10%, rgba(v.$primary, 0.25), transparent 60%),
+        linear-gradient(135deg, rgba(#fff, 0.06), rgba(#fff, 0.02));
+    border: 1px solid v.$border;
+    box-shadow: v.$shadow;
+    margin-top: 28px;
+}
+
+.br-list-overlay {
+    width: 100%;
+    padding: 64px 0;
+    background: linear-gradient(180deg, rgba(v.$bg, 0.15), rgba(v.$bg, 0.55));
+}
+
+.grid {
+    display: grid;
+    gap: 16px;
+    align-items: stretch;
+    border-radius: v.$radius;
+    overflow: hidden;
+    max-width: 1180px;
+    min-height: 420px;
+
+}
+
+.cell {
+    min-width: 0;
+}
+
+.empty {
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.75);
+}

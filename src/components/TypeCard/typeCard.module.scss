@@ -1,0 +1,104 @@
+@use '../../styles/variables' as v;
+
+.card {
+  width: 100%;
+  text-align: left;
+  padding: 0;
+  border: 1px solid v.$border;
+  border-radius: v.$radius;
+  overflow: hidden;
+  background: rgba(#fff, 0.04);
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: v.$border-strong;
+  background: rgba(#fff, 0.06);
+}
+
+.selected {
+  border-color: rgba(v.$primary, 0.8);
+  box-shadow: 0 0 0 4px rgba(v.$primary, 0.18);
+}
+
+.cover {
+  min-height: 180px;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(#000, 0.25);
+}
+
+.body {
+  padding: 14px;
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: 0.2px;
+  color: v.$text;
+}
+
+.sub {
+  margin-top: 8px;
+  font-size: 16px;
+  color: v.$text;
+}
+
+.price {
+  font-weight: 800;
+  white-space: nowrap;
+  font-size: 16px;
+  color: v.$text;
+  margin-top: 8px;
+}
+
+.per {
+  margin-left: 6px;
+  font-weight: 600;
+  color: v.$text;
+  font-size: 12px;
+}
+
+.meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: rgba(v.$text, 0.85);
+  font-size: 13px;
+}
+
+.beds {
+  color: rgba(v.$text, 0.75);
+}
+
+.amenities {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  border: 1px solid v.$border;
+  background: rgba(#000, 0.12);
+}
+
+.more {
+  font-size: 12px;
+  color: v.$muted;
+  padding: 6px 2px;
+}

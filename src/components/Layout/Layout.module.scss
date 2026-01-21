@@ -1,0 +1,12 @@
+@use '../../styles/variables' as v;
+
+.br-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.br-main {
+  flex: 1;
+  padding: 28px 0 60px;
+}
