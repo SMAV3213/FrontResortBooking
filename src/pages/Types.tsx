@@ -1,19 +1,17 @@
 import React from "react";
-import Hero from "../components/Hero/Hero";
 import { mockRoomTypes } from "../mock/mockRoomTypes";
 import TypeList from "../components/TypeList/TypeCardList";
 import TypeInfo from "../components/TypeInfo/TypeInfo";
 import type { RoomTypeWithoutRoomsDTO } from "../types/roomTypeDTOs";
 
-const Home: React.FC = () => {
+const Types: React.FC = () => {
     const [selectedId, setSelectedId] = React.useState<string | null>(mockRoomTypes[0]?.id ?? null)
     const [selected, setSelected] = React.useState<RoomTypeWithoutRoomsDTO | null>(null)
     const [open, setOpen] = React.useState(false)
 
-    return (
+    return(
         <>
             <div className="main">
-                <Hero />
                 <TypeList
                     items={mockRoomTypes}
                     selectedId={selectedId}
@@ -23,7 +21,7 @@ const Home: React.FC = () => {
                         setOpen(true)
                     }}
                     columnsMinWidth={320}
-                    Name="Свободные номера"
+                    Name="Номера"
                 />
             </div>
             <TypeInfo
@@ -35,4 +33,4 @@ const Home: React.FC = () => {
     )
 }
 
-export default Home;
+export default Types;

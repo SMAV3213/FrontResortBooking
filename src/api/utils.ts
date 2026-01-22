@@ -1,0 +1,1 @@
+export const toApiDateTime = (d: Date | string) => (typeof d === 'string' ? d : d.toISOString())

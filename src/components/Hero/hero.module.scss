@@ -4,11 +4,11 @@
     border-radius: v.$radius;
     overflow: hidden;
 
-    min-height: 420px;
+    min-height: 360px;
     display: flex;
 
     background:
-        radial-gradient(900px 420px at 20% 10%, rgba(v.$primary, 0.25), transparent 60%),
+        radial-gradient(900px 360px at 20% 10%, rgba(v.$primary, 0.25), transparent 60%),
         linear-gradient(135deg, rgba(#fff, 0.06), rgba(#fff, 0.02));
     border: 1px solid v.$border;
     box-shadow: v.$shadow;

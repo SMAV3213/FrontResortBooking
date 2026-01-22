@@ -9,8 +9,9 @@ type Props = {
     selectedId?: string | null
     onSelect?: (item: RoomTypeWithoutRoomsDTO) => void
     className?: string
-    columnsMinWidth?: number // опционально: минимальная ширина карточки в grid
+    columnsMinWidth?: number
     emptyText?: string
+    Name?: string
 }
 
 const TypeList: React.FC<Props> = ({
@@ -20,6 +21,7 @@ const TypeList: React.FC<Props> = ({
     className,
     columnsMinWidth,
     emptyText = 'Типы номеров не найдены',
+    Name,
 }) => {
     if (!items?.length) {
         return <div className={clsx(s.empty, className)}>{emptyText}</div>
@@ -28,8 +30,11 @@ const TypeList: React.FC<Props> = ({
     return (
         <section className={clsx(s['br-list'])}>
             <div className={clsx(s['br-list-overlay'])}>
+                <div className={clsx(s['div-name'])}>
+                    <span className={clsx(s['name-text'])}>{Name}</span>
+                </div>
                 <div
-                    className={clsx(s['grid'] , clsx(['br-container']))}
+                    className={clsx(s['grid'], clsx(['br-container']))}
                     style={{ gridTemplateColumns: `repeat(auto-fill, minmax(${columnsMinWidth}px, 1fr))` }}
                     role="list"
                 >

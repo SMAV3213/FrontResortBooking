@@ -14,7 +14,6 @@ const Header: React.FC = () => {
                     <Link to="/">Главная</Link>
                     <Link to="/rooms">Номера</Link>
                     <Link to="/about">О нас</Link>
-                    <Link to="/contact">Контакты</Link>
                 </nav>
 
                 <div className={clsx(s['br-auth'])}>

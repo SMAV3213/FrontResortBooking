@@ -17,5 +17,5 @@ export interface ChangeUserRoleDTO {
 
 export enum ERole {
     User,
-    Admin1
+    Admin
 }

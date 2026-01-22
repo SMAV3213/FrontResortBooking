@@ -7,7 +7,7 @@ export const mockRoomTypes: RoomTypeWithoutRoomsDTO[] = [
     description: 'Уютный номер для комфортного отдыха. Вид во двор.',
     capacity: 2,
     pricePerNight: 4200,
-    imageUrls: ['https://storage.mrgeek.ru/AP1WsPyv3hk0NBxglw05mbiZnNI3uqTqkOhclE0Ddio/fit/505/505/no/1/aHR0cHM6Ly9tcmdlZWsucnUvaW1hZ2VzL3Byb2R1Y3RfcGljdHVyZXNfbmV3LzcwMDAvNzkwMC83OTI1L3Byb2R1Y3RfcGljdHVyZXMvb3JpZ2luYWwvNzkyNS0xLmpwZw.jpg'],
+    imageUrls: ['https://storage.mrgeek.ru/AP1WsPyv3hk0NBxglw05mbiZnNI3uqTqkOhclE0Ddio/fit/505/505/no/1/aHR0cHM6Ly9tcmdlZWsucnUvaW1hZ2VzL3Byb2R1Y3RfcGljdHVyZXNfbmV3LzcwMDAvNzkwMC83OTI1L3Byb2R1Y3RfcGljdHVyZXMvb3JpZ2luYWwvNzkyNS0xLmpwZw.jpg' , 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/13/64/87/42/caption.jpg?w=900&h=-1&s=1'],
   },
   {
     id: 'comfort',

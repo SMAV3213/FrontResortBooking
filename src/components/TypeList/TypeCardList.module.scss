@@ -1,10 +1,10 @@
 @use '../../styles/variables' as v;
 
-.br-list{
+.br-list {
     border-radius: v.$radius;
     overflow: hidden;
 
-    min-height: 420px;
+    min-height: 320px;
     display: flex;
 
     background:
@@ -12,12 +12,12 @@
         linear-gradient(135deg, rgba(#fff, 0.06), rgba(#fff, 0.02));
     border: 1px solid v.$border;
     box-shadow: v.$shadow;
-    margin-top: 28px;
+    margin-top: 8px;
 }
 
 .br-list-overlay {
     width: 100%;
-    padding: 64px 0;
+    padding: 32px 0;
     background: linear-gradient(180deg, rgba(v.$bg, 0.15), rgba(v.$bg, 0.55));
 }
 
@@ -28,7 +28,25 @@
     border-radius: v.$radius;
     overflow: hidden;
     max-width: 1180px;
-    min-height: 420px;
+    min-height: 320px;
+    margin-top: 30px;
+}
+
+.div-name {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+    border-radius: v.$radius;
+    overflow: hidden;
+    max-width: 1180px;
+    margin-inline: auto;
+}
+
+.name-text {
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    font-size: 32px;
 
 }
 
