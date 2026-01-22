@@ -1,18 +1,18 @@
 export interface UserDTO {
-    id: string;
-    Login: string;
-    Email: string;
-    PhoneNumber: string;
-    Role: ERole
-};
+    id: string
+    login: string
+    email: string
+    phoneNumber: string
+    role: ERole
+}
 
 export interface UpdateUserDTO {
-    Email: string;
-    PhoneNumber: string;
+    email: string
+    phoneNumber: string
 }
 
 export interface ChangeUserRoleDTO {
-    userRole: ERole;
+    role: ERole
 }
 
 export enum ERole {

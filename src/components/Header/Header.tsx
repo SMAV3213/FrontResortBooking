@@ -17,8 +17,12 @@ const Header: React.FC = () => {
                 </nav>
 
                 <div className={clsx(s['br-auth'])}>
-                    <button className={clsx('btn', 'btn-ghost')}>Войти</button>
-                    <button className={clsx('btn', 'btn-primary')}>Регистрация</button>
+                    <button className={clsx('btn', 'btn-ghost')}>
+                        <Link to="/login">Логин</Link>
+                    </button>
+                    <button className={clsx('btn', 'btn-primary')}>
+                        <Link to="/register">Регистрация</Link>
+                    </button>
                 </div>
             </div>
         </header>

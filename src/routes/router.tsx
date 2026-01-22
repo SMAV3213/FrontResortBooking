@@ -1,9 +1,19 @@
 import { createBrowserRouter } from 'react-router-dom'
 import Layout from '../components/Layout/Layout'
+
 import Home from '../pages/Home'
 import Types from '../pages/Types'
 import About from '../components/AboutUs/AboutUs'
 
+import Login from '../pages/Auth/Login/Login'
+import Register from '../pages/Auth/Register/Register'
+import Forbidden from '../pages/Forbidden/Forbidden'
+
+import ProtectedRoute from '../auth/ProtectedRoute'
+import { ERole } from '../types/userDTOs'
+
+const Profile = () => <div className="br-container" style={{ padding: 24 }}>Profile</div>
+const Admin = () => <div className="br-container" style={{ padding: 24 }}>Admin</div>
 
 export const router = createBrowserRouter([
   {
@@ -12,7 +22,21 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'rooms', element: <Types /> },
-      { path: 'about', element: <About /> }
+      { path: 'about', element: <About /> },
+
+      { path: 'login', element: <Login /> },
+      { path: 'register', element: <Register /> },
+      { path: 'forbidden', element: <Forbidden /> },
+
+      {
+        element: <ProtectedRoute />,
+        children: [{ path: 'profile', element: <Profile /> }],
+      },
+
+      {
+        element: <ProtectedRoute role={ERole.Admin} />,
+        children: [{ path: 'admin', element: <Admin /> }],
+      },
     ],
   },
 ])
