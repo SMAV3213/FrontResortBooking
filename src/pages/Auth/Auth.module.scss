@@ -1,0 +1,185 @@
+@use '../../styles/variables' as v;
+
+.page {
+  padding: 28px 0 48px;
+  width: 400px;
+  margin: auto;
+}
+
+.wrap {
+  width: min(520px, 100%);
+  margin: 0 auto;
+}
+
+.card {
+  border: 1px solid rgba(v.$text, 0.12);
+  border-radius: 18px;
+  padding: 18px;
+
+  background:
+    radial-gradient(900px 520px at 18% 0%, rgba(v.$primary, 0.18), transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.03));
+
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(v.$primary, 0.10) inset;
+
+  backdrop-filter: blur(12px);
+}
+
+.header {
+  display: grid;
+  gap: 8px;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.sub {
+  margin: 0;
+  color: rgba(v.$text, 0.72);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.form {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(v.$text, 0.78);
+}
+
+.field {
+  position: relative;
+}
+
+.input-l {
+  /* если у тебя уже есть глобальный .input — можно убрать этот блок и использовать className="input" */
+  width: 400px;
+  height: 44px;
+  padding: 0 14px;
+
+  border-radius: v.$radius-sm;
+  border: 1px solid rgba(v.$text, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: v.$text;
+  outline: none;
+
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.input-l::placeholder {
+  color: rgba(v.$text, 0.52);
+}
+
+.input-l:focus {
+  border-color: rgba(v.$primary, 0.70);
+  box-shadow: 0 0 0 4px rgba(v.$primary, 0.22);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* кнопка показать/скрыть пароль (если используешь) */
+.eyeBtn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 10px;
+
+  border: 1px solid rgba(v.$text, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(v.$text, 0.85);
+
+  cursor: pointer;
+  user-select: none;
+
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.06s ease;
+}
+
+.eyeBtn:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(v.$text, 0.22);
+}
+
+.eyeBtn:active {
+  transform: translateY(-50%) translateY(1px);
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 520px) {
+  .row2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.error {
+  margin-top: 4px;
+  padding: 10px 12px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 120, 120, 0.35);
+  background: rgba(255, 120, 120, 0.10);
+  color: rgba(255, 235, 235, 0.95);
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.actions {
+  margin-top: 6px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.actions :global(.btn) {
+  height: 44px;
+}
+
+.links {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+
+  font-size: 13px;
+  color: rgba(v.$text, 0.72);
+}
+
+.links a {
+  color: rgba(v.$text, 0.78);
+}
+
+.links a:hover {
+  color: v.$text;
+}
+
+/* небольшой “разделитель” под ссылками/внизу */
+.footerNote {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(v.$text, 0.10);
+  color: rgba(v.$text, 0.65);
+  font-size: 12px;
+  line-height: 1.45;
+}
