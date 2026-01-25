@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../auth/AuthProvider'
 import s from '../Auth.module.scss'
+import { getApiErrorMessage } from '../../../api/getApiErrorMessage'
 
 const Login: React.FC = () => {
   const nav = useNavigate()
@@ -29,8 +30,8 @@ const Login: React.FC = () => {
       setLoading(true)
       await login({ login: loginValue.trim(), password })
       nav(from, { replace: true })
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? err?.message ?? 'Ошибка входа')
+    } catch (err) {
+      setError(getApiErrorMessage(err))
     } finally {
       setLoading(false)
     }

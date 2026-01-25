@@ -1,5 +1,8 @@
 import { api } from '../api'
 import type { UserDTO, UpdateUserDTO, ChangeUserRoleDTO } from '../../types/userDTOs'
+import { parseRole } from '../../auth/role'
+
+type ApiUserDTO = Omit<UserDTO, 'role'> & { role: string | number }
 
 const mapUpdateUserDto = (dto: UpdateUserDTO) => ({
   email: (dto as any).email ?? (dto as any).Email,
@@ -17,8 +20,9 @@ export const userRequests = {
   },
 
   async getById(id: string) {
-    const res = await api.get<UserDTO>(`/users/${id}`)
-    return res.data
+    const res = await api.get<ApiUserDTO>(`/users/${id}`)
+    const role = parseRole(res.data.role) ?? 0
+    return { ...res.data, role } as UserDTO
   },
 
   async update(id: string, dto: UpdateUserDTO) {
