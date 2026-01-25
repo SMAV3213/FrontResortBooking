@@ -3,12 +3,15 @@ import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import type { RoomTypeWithoutRoomsDTO } from '../../types/roomTypeDTOs'
 import s from './typeInfo.module.scss'
-
+import { API_BASE } from '../../api/api'
 type Props = {
     open: boolean
     item: RoomTypeWithoutRoomsDTO | null
     onClose: () => void
     className?: string
+    showActions?: boolean
+    onBook?: (item: RoomTypeWithoutRoomsDTO) => void
+    bookingDisabled?: boolean
 }
 
 const priceFmt = new Intl.NumberFormat('ru-RU', {
@@ -18,9 +21,9 @@ const priceFmt = new Intl.NumberFormat('ru-RU', {
 })
 
 type AnimState = 'closed' | 'opening' | 'open' | 'closing'
-const ANIM_MS = 320 // должно совпадать с transition в CSS
+const ANIM_MS = 320
 
-const TypeInfo: React.FC<Props> = ({ open, item, onClose, className }) => {
+const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions , bookingDisabled , onBook }) => {
     const isBrowser = typeof document !== 'undefined'
 
     const [activeIdx, setActiveIdx] = React.useState(0)
@@ -32,7 +35,6 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className }) => {
     const safeActiveIdx = Math.min(activeIdx, Math.max(0, images.length - 1))
     const activeImage = hasImages ? images[safeActiveIdx] : null
 
-    // 1) Открытие/закрытие с анимацией (важно: хуки НЕ условно)
     React.useEffect(() => {
         let t: number | undefined
         let raf1: number | undefined
@@ -42,7 +44,6 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className }) => {
             setMounted(true)
             setAnim('opening')
 
-            // двойной rAF — чтобы переход точно стартовал из "скрытого" состояния
             raf1 = requestAnimationFrame(() => {
                 raf2 = requestAnimationFrame(() => setAnim('open'))
             })
@@ -61,12 +62,10 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className }) => {
         }
     }, [open, mounted])
 
-    // 2) Сброс фото при открытии/смене номера
     React.useEffect(() => {
         if (open) setActiveIdx(0)
     }, [open, item?.id])
 
-    // 3) ESC + стрелки (только когда модалка реально открыта)
     React.useEffect(() => {
         if (!open) return
 
@@ -82,7 +81,6 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className }) => {
         return () => document.removeEventListener('keydown', onKeyDown)
     }, [open, onClose, hasImages, images.length])
 
-    // 4) Блок скролла пока модалка смонтирована (включая closing)
     React.useEffect(() => {
         if (!mounted || !isBrowser) return
         const prevOverflow = document.body.style.overflow
@@ -92,7 +90,6 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className }) => {
         }
     }, [mounted, isBrowser])
 
-    // ---- ВАЖНО: return'ы только ПОСЛЕ хуков ----
     if (!isBrowser || !mounted || !item) return null
 
     const prev = () => setActiveIdx((i) => Math.max(0, i - 1))
@@ -129,7 +126,7 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className }) => {
                     <div className={s.gallery}>
                         <div className={s.viewer}>
                             {activeImage ? (
-                                <img className={s.image} src={activeImage} alt={`${item.name} фото ${safeActiveIdx + 1}`} />
+                                <img className={s.image} src={API_BASE + activeImage} alt={`${item.name} фото ${safeActiveIdx + 1}`} />
                             ) : (
                                 <div className={s.noImage}>Нет фотографий</div>
                             )}
@@ -164,7 +161,7 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className }) => {
                                         onClick={() => setActiveIdx(idx)}
                                         aria-label={`Открыть фото ${idx + 1}`}
                                     >
-                                        <img className={s.thumbImg} src={src} alt="" />
+                                        <img className={s.thumbImg} src={API_BASE + src} alt="" />
                                     </button>
                                 ))}
                             </div>
@@ -191,14 +188,21 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className }) => {
                             </div>
                         </div>
 
-                        <div className={s.actions}>
-                            <button type="button" className={clsx('btn', 'btn-primary')}>
-                                Забронировать
-                            </button>
-                            <button type="button" className={clsx('btn')} onClick={onClose}>
-                                Выбрать другой
-                            </button>
-                        </div>
+                        {showActions && (
+                            <div className={s.actions}>
+                                <button
+                                    type="button"
+                                    className={clsx('btn', 'btn-primary')}
+                                    onClick={() => item && onBook?.(item)}
+                                    disabled={bookingDisabled}
+                                >
+                                    Забронировать
+                                </button>
+                                <button type="button" className={clsx('btn')} onClick={onClose}>
+                                    Выбрать другой
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

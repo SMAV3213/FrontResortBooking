@@ -2,7 +2,7 @@ import React from 'react'
 import clsx from 'clsx'
 import type { RoomTypeWithoutRoomsDTO } from '../../types/roomTypeDTOs'
 import s from './typeCard.module.scss'
-
+import { API_BASE } from '../../api/api'
 type Props = {
   item: RoomTypeWithoutRoomsDTO
   selected?: boolean
@@ -27,7 +27,7 @@ const TypeCard: React.FC<Props> = ({ item, selected, onSelect, className }) => {
     >
       <div
         className={s.cover}
-        style={cover ? { backgroundImage: `url(${cover})` } : undefined}
+        style={cover ? { backgroundImage: `url(${API_BASE}${cover})` } : undefined}
         aria-label={item.name}>
       </div>
 

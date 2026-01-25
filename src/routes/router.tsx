@@ -1,7 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom'
 import Layout from '../components/Layout/Layout'
 
-import Home from '../pages/Home'
+import Home from '../pages/Home/Home'
 import Types from '../pages/Types'
 import About from '../components/AboutUs/AboutUs'
 
@@ -11,8 +11,8 @@ import Forbidden from '../pages/Forbidden/Forbidden'
 
 import ProtectedRoute from '../auth/ProtectedRoute'
 import { ERole } from '../types/userDTOs'
+import Profile from '../pages/Profile/Profile'
 
-const Profile = () => <div className="br-container" style={{ padding: 24 }}>Profile</div>
 const Admin = () => <div className="br-container" style={{ padding: 24 }}>Admin</div>
 
 export const router = createBrowserRouter([

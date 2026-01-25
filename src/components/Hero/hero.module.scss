@@ -53,6 +53,18 @@
     backdrop-filter: blur(10px);
 }
 
+.searchError {
+    grid-column: 1 / -1;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 120, 120, 0.35);
+    background: rgba(255, 120, 120, 0.10);
+    color: rgba(255, 235, 235, 0.95);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
 @media (max-width: 760px) {
     .br-hero-title {
         font-size: 38px;
