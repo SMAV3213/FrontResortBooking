@@ -7,9 +7,10 @@ import { getApiErrorMessage } from '../../api/getApiErrorMessage'
 
 import type { BookingDTO } from '../../types/bookingDTOs'
 import type { UserDTO, UpdateUserDTO } from '../../types/userDTOs'
-import { bookingStatusLabel } from '../../shared/bookingStatus'
+import { bookingStatusRu } from '../../shared/labels';
 
 import s from './profile.module.scss'
+
 
 const dateFmt = new Intl.DateTimeFormat('ru-RU', { year: 'numeric', month: '2-digit', day: '2-digit' })
 const priceFmt = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 })
@@ -199,7 +200,7 @@ const Profile: React.FC = () => {
                   <div key={b.id} className={s.booking}>
                     <div className={s.bookingTop}>
                       <div className={s.bookingTitle}>Бронь #{b.id.slice(0, 8)}</div>
-                      <div className={s.badge}>{bookingStatusLabel(statusRaw)}</div>
+                      <div className={s.badge}>{bookingStatusRu(statusRaw)}</div>
                     </div>
 
                     <div className={s.bookingRows}>

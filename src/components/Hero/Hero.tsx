@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 import s from './hero.module.scss'
-
+import { GUEST_OPTIONS } from '../../shared/countArray'
 type Props = {
     loading?: boolean
     onSearch: (params: { guests: number; checkIn: string; checkOut: string }) => void | Promise<void>
@@ -9,7 +9,6 @@ type Props = {
 
 const pad2 = (n: number) => String(n).padStart(2, '0')
 
-// YYYY-MM-DD в локальной зоне
 const toDateInput = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
 
 const addDays = (dateStr: string, days: number) => {
@@ -23,13 +22,11 @@ const Hero: React.FC<Props> = ({ loading, onSearch }) => {
     const today = React.useMemo(() => toDateInput(new Date()), [])
 
     const [guests, setGuests] = React.useState<number>(2)
-    const [checkIn, setCheckIn] = React.useState<string>('')   // YYYY-MM-DD
-    const [checkOut, setCheckOut] = React.useState<string>('') // YYYY-MM-DD
+    const [checkIn, setCheckIn] = React.useState<string>('')
+    const [checkOut, setCheckOut] = React.useState<string>('')
     const [error, setError] = React.useState<string | null>(null)
 
-    // Минимальная дата выезда:
-    // - если выбран checkIn -> на следующий день (чтобы выезд был позже заезда)
-    // - иначе -> сегодня
+
     const minCheckOut = checkIn ? addDays(checkIn, 1) : today
 
     const validate = () => {
@@ -41,12 +38,11 @@ const Hero: React.FC<Props> = ({ loading, onSearch }) => {
         return null
     }
 
-    // Если поменяли checkIn так, что текущий checkOut стал некорректным — сбросим его
     React.useEffect(() => {
         if (checkOut && checkOut < minCheckOut) {
             setCheckOut('')
         }
-    }, [checkIn]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [checkIn])
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -67,21 +63,24 @@ const Hero: React.FC<Props> = ({ loading, onSearch }) => {
                     <p className={clsx(s['br-hero-sub'])}>Бронирование номеров на Байкале</p>
 
                     <form className={clsx(s['br-search'])} onSubmit={onSubmit}>
-                        <input
-                            className="input"
-                            type="number"
-                            min={1}
-                            step={1}
+                        <select
+                            className="select"
                             value={guests}
                             onChange={(e) => setGuests(Number(e.target.value))}
                             aria-label="Гости"
-                        />
+                        >
+                            {GUEST_OPTIONS.map((n) => (
+                                <option key={n} value={n}>
+                                    {n} {n === 1 ? 'гость' : n < 5 ? 'гостя' : 'гостей'}
+                                </option>
+                            ))}
+                        </select>
 
                         <input
                             className="input"
                             type="date"
                             value={checkIn}
-                            min={today}                 
+                            min={today}
                             onChange={(e) => setCheckIn(e.target.value)}
                         />
 
@@ -89,8 +88,8 @@ const Hero: React.FC<Props> = ({ loading, onSearch }) => {
                             className="input"
                             type="date"
                             value={checkOut}
-                            min={minCheckOut}           
-                            disabled={!checkIn}         
+                            min={minCheckOut}
+                            disabled={!checkIn}
                             onChange={(e) => setCheckOut(e.target.value)}
                         />
 

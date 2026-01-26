@@ -12,8 +12,7 @@ import Forbidden from '../pages/Forbidden/Forbidden'
 import ProtectedRoute from '../auth/ProtectedRoute'
 import { ERole } from '../types/userDTOs'
 import Profile from '../pages/Profile/Profile'
-
-const Admin = () => <div className="br-container" style={{ padding: 24 }}>Admin</div>
+import AdminPanel from '../pages/Admin/Admin'
 
 export const router = createBrowserRouter([
   {
@@ -35,7 +34,7 @@ export const router = createBrowserRouter([
 
       {
         element: <ProtectedRoute role={ERole.Admin} />,
-        children: [{ path: 'admin', element: <Admin /> }],
+        children: [{ path: 'admin', element: <AdminPanel /> }],
       },
     ],
   },
