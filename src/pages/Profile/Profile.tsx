@@ -7,10 +7,11 @@ import { getApiErrorMessage } from '../../api/getApiErrorMessage'
 
 import type { BookingDTO } from '../../types/bookingDTOs'
 import type { UserDTO, UpdateUserDTO } from '../../types/userDTOs'
-import { bookingStatusRu } from '../../shared/labels';
+
+import { bookingStatusRu } from '../../shared/labels'
+import Pagination from '../../components/Pagination/Pagination'
 
 import s from './profile.module.scss'
-
 
 const dateFmt = new Intl.DateTimeFormat('ru-RU', { year: 'numeric', month: '2-digit', day: '2-digit' })
 const priceFmt = new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 })
@@ -22,6 +23,10 @@ const toDate = (v: any) => {
 }
 
 const MS_DAY = 24 * 60 * 60 * 1000
+const startOfDayTs = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+const daysUntil = (date: Date) => Math.ceil((startOfDayTs(date) - startOfDayTs(new Date())) / MS_DAY)
+
+const canCancelByStatus = (status: string) => status === 'Created' || status === 'Confirmed'
 
 const Profile: React.FC = () => {
   const { user, logout, refreshMe } = useAuth()
@@ -34,9 +39,13 @@ const Profile: React.FC = () => {
     phoneNumber: user?.phoneNumber ?? '',
   })
 
+  // bookings (paged)
   const [bookings, setBookings] = React.useState<BookingDTO[]>([])
   const [bookingsLoading, setBookingsLoading] = React.useState(false)
   const [bookingsError, setBookingsError] = React.useState<string | null>(null)
+  const [page, setPage] = React.useState(1)
+  const pageSize = 10
+  const [total, setTotal] = React.useState(0)
 
   React.useEffect(() => {
     setForm({
@@ -45,55 +54,41 @@ const Profile: React.FC = () => {
     })
   }, [user?.id, user?.email, user?.phoneNumber])
 
-  const canCancelByStatus = (status: string) => status === 'Created' || status === 'Confirmed'
-
-  const startOfDayTs = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
-
-  const getCancelBlockReason = (status: string, checkIn: Date | null) => {
-    if (!canCancelByStatus(status)) return 'Эту бронь нельзя отменить по статусу.'
-    if (!checkIn) return null
-
-    const left = daysUntil(checkIn)
-    if (left < 3) return 'До заезда осталось менее 3 дней. Отмена через поддержку.'
-    return null
-  }
-
-  const daysUntil = (date: Date) => {
-    const diff = startOfDayTs(date) - startOfDayTs(new Date())
-    return Math.ceil(diff / MS_DAY)
-  }
-
   const loadBookings = React.useCallback(async () => {
     setBookingsError(null)
     setBookingsLoading(true)
     try {
-      const data = await bookingRequests.getMy()
-      setBookings(data)
+      const res = await bookingRequests.getMy({
+        page,
+        pageSize,
+        sortBy: 'checkIn',
+        sortDir: 'desc',
+      })
+      setBookings(res.items)
+      setTotal(res.total)
     } catch (e) {
       setBookings([])
+      setTotal(0)
       setBookingsError(getApiErrorMessage(e))
     } finally {
       setBookingsLoading(false)
     }
-  }, [])
+  }, [page])
 
   React.useEffect(() => {
     refreshMe()
+  }, [refreshMe])
+
+  React.useEffect(() => {
     loadBookings()
-  }, [refreshMe, loadBookings])
+  }, [loadBookings])
 
   const onSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     setProfileError(null)
 
-    if (!user?.id) {
-      setProfileError('Не удалось определить пользователя')
-      return
-    }
-    if (!form.email.trim() || !form.phoneNumber.trim()) {
-      setProfileError('Заполните email и номер телефона')
-      return
-    }
+    if (!user?.id) return setProfileError('Не удалось определить пользователя')
+    if (!form.email.trim() || !form.phoneNumber.trim()) return setProfileError('Заполните email и номер телефона')
 
     try {
       setProfileLoading(true)
@@ -109,12 +104,27 @@ const Profile: React.FC = () => {
     }
   }
 
-  const onCancelBooking = async (id: string) => {
-    const ok = window.confirm('Отменить бронь?')
-    if (!ok) return
+  const onCancelBooking = async (b: BookingDTO) => {
+    const checkIn = toDate((b as any).checkIn ?? (b as any).checkInDate)
+    const statusRaw = String((b as any).status)
+
+    if (!canCancelByStatus(statusRaw)) {
+      alert('Эту бронь нельзя отменить по статусу.')
+      return
+    }
+
+    if (checkIn) {
+      const left = daysUntil(checkIn)
+      if (left < 3) {
+        alert('До заезда осталось менее 3 дней. Отмена через поддержку.\nПозвоните в поддержку.')
+        return
+      }
+    }
+
+    if (!window.confirm('Отменить бронь?')) return
 
     try {
-      await bookingRequests.cancel(id)
+      await bookingRequests.cancel(b.id)
       await loadBookings()
     } catch (e) {
       alert(getApiErrorMessage(e))
@@ -126,6 +136,7 @@ const Profile: React.FC = () => {
   return (
     <main className={s.page}>
       <div className={clsx('br-container', s.grid)}>
+        {/* Профиль */}
         <section className={s.card}>
           <div className={s.cardHead}>
             <h1 className={s.h1}>Личный кабинет</h1>
@@ -144,20 +155,12 @@ const Profile: React.FC = () => {
           <form className={s.form} onSubmit={onSaveProfile}>
             <label className={s.label}>
               Email
-              <input
-                className="input"
-                value={form.email}
-                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-              />
+              <input className="input" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} />
             </label>
 
             <label className={s.label}>
               Телефон
-              <input
-                className="input"
-                value={form.phoneNumber}
-                onChange={(e) => setForm((p) => ({ ...p, phoneNumber: e.target.value }))}
-              />
+              <input className="input" value={form.phoneNumber} onChange={(e) => setForm((p) => ({ ...p, phoneNumber: e.target.value }))} />
             </label>
 
             {profileError && <div className={s.error}>{profileError}</div>}
@@ -173,6 +176,7 @@ const Profile: React.FC = () => {
           </form>
         </section>
 
+        {/* Брони */}
         <section className={s.card}>
           <div className={s.cardHead}>
             <h2 className={s.h2}>Мои бронирования</h2>
@@ -188,74 +192,75 @@ const Profile: React.FC = () => {
           ) : bookings.length === 0 ? (
             <div className={s.muted}>У вас пока нет бронирований.</div>
           ) : (
-            <div className={s.bookingList}>
-              {bookings.map((b) => {
-                const inD = toDate((b as any).checkIn)
-                const outD = toDate((b as any).checkOut)
+            <>
+              <div className={s.bookingList}>
+                {bookings.map((b) => {
+                  const inD = toDate((b as any).checkIn ?? (b as any).checkInDate)
+                  const outD = toDate((b as any).checkOut ?? (b as any).checkOutDate)
+                  const statusRaw = String((b as any).status)
 
-                const statusRaw = String((b as any).status)
-                const blockReason = getCancelBlockReason(statusRaw, inD)
+                  const blockedByDays = inD ? daysUntil(inD) < 3 : false
+                  const blocked = !canCancelByStatus(statusRaw) || blockedByDays
 
-                return (
-                  <div key={b.id} className={s.booking}>
-                    <div className={s.bookingTop}>
-                      <div className={s.bookingTitle}>Бронь #{b.id.slice(0, 8)}</div>
-                      <div className={s.badge}>{bookingStatusRu(statusRaw)}</div>
+                  return (
+                    <div key={b.id} className={s.booking}>
+                      <div className={s.bookingTop}>
+                        <div className={s.bookingTitle}>Бронь #{b.id.slice(0, 8)}</div>
+                        <div className={s.badge}>{bookingStatusRu(statusRaw)}</div>
+                      </div>
+
+                      <div className={s.bookingRows}>
+                        <div className={s.row}>
+                          <span className={s.key}>Даты</span>
+                          <span className={s.val}>
+                            {inD ? dateFmt.format(inD) : '—'} → {outD ? dateFmt.format(outD) : '—'}
+                          </span>
+                        </div>
+
+                        <div className={s.row}>
+                          <span className={s.key}>Гостей</span>
+                          <span className={s.val}>{(b as any).guestsCount}</span>
+                        </div>
+
+                        <div className={s.row}>
+                          <span className={s.key}>Стоимость</span>
+                          <span className={s.val}>
+                            {typeof (b as any).totalPrice === 'number' ? priceFmt.format((b as any).totalPrice) : '—'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className={s.bookingActions}>
+                        <button
+                          type="button"
+                          className={clsx('btn', 'btn-ghost')}
+                          aria-disabled={blocked}
+                          onClick={() => {
+                            if (blockedByDays) {
+                              alert('До заезда осталось менее 3 дней. Отмена через поддержку.\nПозвоните в поддержку.')
+                              return
+                            }
+                            if (!canCancelByStatus(statusRaw)) {
+                              alert('Эту бронь нельзя отменить по статусу.')
+                              return
+                            }
+                            onCancelBooking(b)
+                          }}
+                        >
+                          Отменить
+                        </button>
+                      </div>
                     </div>
+                  )
+                })}
+              </div>
 
-                    <div className={s.bookingRows}>
-                      <div className={s.row}>
-                        <span className={s.key}>Даты</span>
-                        <span className={s.val}>
-                          {inD ? dateFmt.format(inD) : '—'} → {outD ? dateFmt.format(outD) : '—'}
-                        </span>
-                      </div>
-
-                      <div className={s.row}>
-                        <span className={s.key}>Гостей</span>
-                        <span className={s.val}>{(b as any).guestsCount}</span>
-                      </div>
-
-                      <div className={s.row}>
-                        <span className={s.key}>Стоимость</span>
-                        <span className={s.val}>
-                          {typeof (b as any).totalPrice === 'number'
-                            ? priceFmt.format((b as any).totalPrice)
-                            : '—'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className={s.bookingActions}>
-                      <button
-                        type="button"
-                        className={clsx('btn', 'btn-ghost')}
-                        aria-disabled={Boolean(blockReason)} 
-                        onClick={() => {
-                          if (blockReason) {
-                            alert(blockReason + '\n\nПозвоните в поддержку.')
-                            return
-                          }
-                          onCancelBooking(b.id)
-                        }}
-                      >
-                        Отменить
-                      </button>
-                    </div>
-
-                    {blockReason && (
-                      <div className={s.cancelHint}>
-                        До заезда осталось менее 3 дней — отмена через поддержку.
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+              <Pagination page={page} pageSize={pageSize} total={total} onPageChange={setPage} />
+            </>
           )}
         </section>
-      </div >
-    </main >
+      </div>
+    </main>
   )
 }
 

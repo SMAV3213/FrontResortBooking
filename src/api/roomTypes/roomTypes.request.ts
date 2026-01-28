@@ -1,14 +1,26 @@
 import { api } from '../api'
-import { toApiDateTime } from '../utils'
 import type { RoomTypeWithoutRoomsDTO, CreateRoomTypeDTO, UpdateRoomTypeDTO } from '../../types/roomTypeDTOs'
+import type { PagedResult } from '../paged'
+import { toApiDateTime } from '../utils'
 
+export type RoomTypesQuery = {
+  page?: number
+  pageSize?: number
+  search?: string
+  minCapacity?: number
+  maxCapacity?: number
+  minPrice?: number
+  maxPrice?: number
+  sortBy?: 'name' | 'price' | 'capacity'
+  sortDir?: 'asc' | 'desc'
+}
 const buildCreateForm = (dto: CreateRoomTypeDTO, images?: File[]) => {
   const fd = new FormData()
   fd.append('Name', dto.name)
   fd.append('Description', dto.description)
   fd.append('Capacity', String(dto.capacity))
   fd.append('PricePerNight', String(dto.pricePerNight))
-  ;(images ?? []).forEach((img) => fd.append('images', img))
+    ; (images ?? []).forEach((img) => fd.append('images', img))
   return fd
 }
 
@@ -19,13 +31,13 @@ const buildUpdateForm = (id: string, dto: UpdateRoomTypeDTO, images?: File[]) =>
   fd.append('Description', dto.description)
   fd.append('Capacity', String(dto.capacity))
   fd.append('PricePerNight', String(dto.pricePerNight))
-  ;(images ?? []).forEach((img) => fd.append('images', img))
+    ; (images ?? []).forEach((img) => fd.append('images', img))
   return fd
 }
 
 export const roomTypesRequests = {
-  async getAll() {
-    const res = await api.get<RoomTypeWithoutRoomsDTO[]>('/room-types')
+  async getAll(params?: RoomTypesQuery) {
+    const res = await api.get<PagedResult<RoomTypeWithoutRoomsDTO>>('/room-types', { params })
     return res.data
   },
 

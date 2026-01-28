@@ -1,11 +1,11 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import AdminTabs from '../../components/Admin/AdminTabs';
-import RoomTypesTab from '../../components/Admin/AdminTabs/RoomTypesTab';
-import RoomsTab from '../../components/Admin/AdminTabs/RoomsTab';
-import BookingsTab from '../../components/Admin/AdminTabs/BookingTab';
-import UsersTab from '../../components/Admin/AdminTabs/UserTab';
+import AdminTabs from './components/AdminTabs';
+import RoomTypesTab from './components/AdminTabs/RoomTypesTab';
+import RoomsTab from './components/AdminTabs/RoomsTab';
+import BookingsTab from './components/AdminTabs/BookingTab';
+import UsersTab from './components/AdminTabs/UserTab';
 
 import s from './admin.module.scss'
 

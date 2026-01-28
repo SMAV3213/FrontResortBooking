@@ -25,8 +25,11 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
   const [ready, setReady] = React.useState(false)
 
   const payload = React.useMemo(() => (token ? decodeJwt(token) : null), [token])
+
+  const roleFromUser = parseRole((user as any)?.role)
   const roleFromToken = parseRole(getRoleFromJwt(payload))
-  const role = user?.role ?? roleFromToken
+
+  const role = roleFromUser ?? roleFromToken
   const isAuth = Boolean(token)
 
   const refreshMe = React.useCallback(async () => {
@@ -44,7 +47,7 @@ export const AuthProvider: React.FC<React.PropsWithChildren> = ({ children }) =>
       const userId = getUserIdFromJwt(p)
 
       if (userId) {
-        const u = await userRequests.getById(userId) // тут роль уже нормализована
+        const u = await userRequests.getById(userId)
         setUser(u)
       }
     } finally {

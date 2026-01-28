@@ -1,33 +1,46 @@
 import { api } from '../api'
-import type { UserDTO, UpdateUserDTO, ChangeUserRoleDTO } from '../../types/userDTOs'
-import { parseRole } from '../../auth/role'
+import type { UserDTO, ERole } from '../../types/userDTOs'
+import type { PagedResult } from '../paged'
+
+export type UsersQuery = {
+  page?: number
+  pageSize?: number
+  search?: string
+  role?: 'Admin' | 'User'
+  sortBy?: 'login' | 'email' | 'role'
+  sortDir?: 'asc' | 'desc'
+}
 
 type ApiUserDTO = Omit<UserDTO, 'role'> & { role: string | number }
 
-const mapUpdateUserDto = (dto: UpdateUserDTO) => ({
-  email: (dto as any).email ?? (dto as any).Email,
-  phoneNumber: (dto as any).phoneNumber ?? (dto as any).PhoneNumber,
-})
+const parseRole = (v: unknown): ERole => {
+  if (typeof v === 'number') return v as ERole
+  const s = String(v).toLowerCase()
+  if (s === 'admin') return 1 as ERole
+  return 0 as ERole
+}
 
-const mapChangeRoleDto = (dto: ChangeUserRoleDTO) => ({
-  role: (dto as any).role ?? (dto as any).userRole,
+const normalizeUser = (u: ApiUserDTO): UserDTO => ({
+  ...u,
+  role: parseRole(u.role),
 })
 
 export const userRequests = {
-  async getAll() {
-    const res = await api.get<UserDTO[]>('/users')
-    return res.data
+  async getAll(params?: any) {
+    const res = await api.get<PagedResult<ApiUserDTO>>('/users', { params })
+    return {
+      ...res.data,
+      items: res.data.items.map(normalizeUser),
+    } as PagedResult<UserDTO>
   },
 
   async getById(id: string) {
-    const res = await api.get<ApiUserDTO>(`/users/${id}`)
-    const role = parseRole(res.data.role) ?? 0
-    return { ...res.data, role } as UserDTO
+    const res = await api.get<UserDTO>(`/users/${id}`)
+    return res.data
   },
 
-  async update(id: string, dto: UpdateUserDTO) {
-    const payload = mapUpdateUserDto(dto)
-    const res = await api.put<UserDTO>(`/users/${id}`, payload)
+  async update(id: string, dto: { email: string; phoneNumber: string }) {
+    const res = await api.put(`/users/${id}`, dto)
     return res.data
   },
 
@@ -36,9 +49,8 @@ export const userRequests = {
     return res.data
   },
 
-  async changeRole(id: string, dto: ChangeUserRoleDTO) {
-    const payload = mapChangeRoleDto(dto)
-    const res = await api.patch<UserDTO>(`/users/${id}/role`, payload)
+  async changeRole(id: string, dto: { role: ERole }) {
+    const res = await api.patch(`/users/${id}/role`, dto)
     return res.data
   },
 }

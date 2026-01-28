@@ -1,38 +1,38 @@
 import { api } from '../api'
-import { type RoomDTO, type CreateRoomDTO, type UpdateRoomDTO, ERoomStatus } from '../../types/roomDTOs'
+import type { RoomDTO, ERoomStatus } from '../../types/roomDTOs'
+import type { PagedResult } from '../paged'
 
-const roomStatusToApi = (s: ERoomStatus | string) => (typeof s === 'string' ? s : ERoomStatus[s])
+export type RoomsQuery = {
+  page?: number
+  pageSize?: number
+  search?: string
+  roomTypeId?: string
+  status?: 'Available' | 'Occupied' | 'Maintenance'
+  sortBy?: 'number' | 'status' | 'createdAt'
+  sortDir?: 'asc' | 'desc'
+}
 
 export const roomRequests = {
-  // GET /api/rooms (admin)
-  async getAll() {
-    const res = await api.get<RoomDTO[]>('/rooms')
+  async getAll(params?: RoomsQuery) {
+    const res = await api.get<PagedResult<RoomDTO>>('/rooms', { params })
     return res.data
   },
 
-  // GET /api/rooms/{id} (admin)
   async getById(id: string) {
     const res = await api.get<RoomDTO>(`/rooms/${id}`)
     return res.data
   },
 
-  // POST /api/rooms (admin)
-  async create(dto: CreateRoomDTO) {
-    const res = await api.post<RoomDTO>('/rooms', dto)
+  async create(dto: { number: string; roomTypeId: string }) {
+    const res = await api.post('/rooms', dto)
     return res.data
   },
 
-  // PUT /api/rooms/{id} (admin)
-  async update(id: string, dto: UpdateRoomDTO) {
-    const payload = {
-      ...dto,
-      status: roomStatusToApi(dto.status as any),
-    }
-    const res = await api.put<RoomDTO>(`/rooms/${id}`, payload)
+  async update(id: string, dto: { number: string; status: ERoomStatus | string; roomTypeId: string }) {
+    const res = await api.put(`/rooms/${id}`, dto)
     return res.data
   },
 
-  // DELETE /api/rooms/{id} (admin)
   async remove(id: string) {
     const res = await api.delete(`/rooms/${id}`)
     return res.data

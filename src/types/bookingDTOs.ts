@@ -1,12 +1,15 @@
 export interface BookingDTO {
-    id: string;
-    roomId: string;
-    userId: string;
-    checkIn: Date;
-    checkOut: Date;
-    guestsCount: number;
-    totalPrice: number;
-    status: EBookingStatus;
+    id: string
+    roomId: string
+    number: string
+    userId: string
+    login: string
+    checkIn: string
+    checkOut: string
+    guestsCount: number
+    totalPrice: number
+    status: string
+    createdAt: string
 }
 
 export interface CreateBookingDTO {

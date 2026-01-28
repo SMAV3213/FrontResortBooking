@@ -1,5 +1,5 @@
 import React from 'react'
-import s from '../../pages/Admin/admin.module.scss'
+import s from '../admin.module.scss'
 
 type Props = {
   title: string

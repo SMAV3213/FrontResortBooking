@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
-import type { AdminTabKey } from '../../pages/Admin/Admin'
-import s from '../../pages/Admin/admin.module.scss'
+import type { AdminTabKey } from '../Admin'
+import s from '../admin.module.scss'
 
 
 type Props = {
