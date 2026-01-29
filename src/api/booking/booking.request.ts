@@ -11,6 +11,9 @@ export type BookingsQuery = {
   userId?: string
   roomId?: string
   roomTypeId?: string
+  
+  from?: string
+  to?: string
 
   checkInFrom?: string
   checkInTo?: string
