@@ -1,24 +1,23 @@
 @use '../../styles/variables' as v;
 
 .br-hero {
-    border-radius: v.$radius;
+    border-radius: var(--radius);
     overflow: hidden;
 
     min-height: 360px;
     display: flex;
 
     background:
-        radial-gradient(900px 360px at 20% 10%, rgba(v.$primary, 0.25), transparent 60%),
-        linear-gradient(135deg, rgba(#fff, 0.06), rgba(#fff, 0.02));
-    border: 1px solid v.$border;
-    box-shadow: v.$shadow;
-
+        radial-gradient(900px 360px at 20% 10%, var(--primary-glow), transparent 60%),
+        linear-gradient(135deg, var(--glass-06), var(--glass-02));
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
 }
 
 .br-hero-overlay {
     width: 100%;
     padding: 64px 0;
-    background: linear-gradient(180deg, rgba(v.$bg, 0.15), rgba(v.$bg, 0.55));
+    background: linear-gradient(180deg, var(--hero-overlay-top), var(--hero-overlay-bottom));
 }
 
 .br-hero-inner {
@@ -32,11 +31,12 @@
     font-size: 52px;
     line-height: 1.05;
     letter-spacing: 0.2px;
+    color: var(--text);
 }
 
 .br-hero-sub {
     margin: 0;
-    color: v.$muted;
+    color: var(--muted);
     font-size: 16px;
 }
 
@@ -48,8 +48,9 @@
 
     padding: 12px;
     border-radius: v.$radius;
-    background: rgba(#000, 0.18);
-    border: 1px solid v.$border;
+
+    background: var(--card-bg);
+    border: 1px solid var(--border);
     backdrop-filter: blur(10px);
 }
 

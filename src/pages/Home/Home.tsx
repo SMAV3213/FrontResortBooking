@@ -6,18 +6,18 @@ import Hero from '../../components/Hero/Hero'
 import TypeList from '../../components/TypeList/TypeCardList'
 import TypeInfo from '../../components/TypeInfo/TypeInfo'
 import AuthRequiredModal from '../../components/AuthRequiredModal/AuthRequiredModal'
+import ConfirmModal from '../../components/ConfirmModal/ConfirmModal'
 
 import { roomTypesRequests, bookingRequests, tokenStorage } from '../../api'
 import { getApiErrorMessage } from '../../api/getApiErrorMessage'
 import type { RoomTypeWithoutRoomsDTO } from '../../types/roomTypeDTOs'
 
 import { decodeJwt, getUserIdFromJwt } from '../../auth/jwt'
-import s from './home.module.scss'
 import { useAuth } from '../../auth/AuthProvider'
+import s from './home.module.scss'
 
 const toDateTime = (date: string) => `${date}T00:00:00`
 const toDate = (date: string) => new Date(toDateTime(date))
-
 type SearchParams = { guests: number; checkIn: string; checkOut: string }
 
 const Home: React.FC = () => {
@@ -36,6 +36,11 @@ const Home: React.FC = () => {
 
   const [bookingLoading, setBookingLoading] = React.useState(false)
   const [authModalOpen, setAuthModalOpen] = React.useState(false)
+
+  // confirm booking modal
+  const [confirmOpen, setConfirmOpen] = React.useState(false)
+  const [confirmLoading, setConfirmLoading] = React.useState(false)
+  const [pendingRoomType, setPendingRoomType] = React.useState<RoomTypeWithoutRoomsDTO | null>(null)
 
   const fetchAvailable = React.useCallback(async (params: SearchParams) => {
     setLoading(true)
@@ -65,48 +70,83 @@ const Home: React.FC = () => {
       return
     }
 
-    // 2) проверка авторизации
     if (!isAuth) {
       setAuthModalOpen(true)
       return
     }
 
-    // 1) userId из jwt sub
+    setPendingRoomType(roomType)
+    setConfirmOpen(true)
+  }
+
+  const doCreateBooking = async () => {
+    if (!pendingRoomType || !searchParams) return
+
     const token = tokenStorage.getAccess()
     const userId = token ? getUserIdFromJwt(decodeJwt(token)) : null
     if (!userId) {
+      setConfirmOpen(false)
+      setPendingRoomType(null)
       setAuthModalOpen(true)
       return
     }
 
-    // подтверждение
-    const ok = window.confirm(
-      `Подтвердить бронирование?\n\n` +
-        `${roomType.name}\n` +
-        `Гостей: ${searchParams.guests}\n` +
-        `Даты: ${searchParams.checkIn} → ${searchParams.checkOut}`
-    )
-    if (!ok) return
-
     try {
+      setConfirmLoading(true)
       setBookingLoading(true)
 
       await bookingRequests.create({
         userId,
-        roomTypeId: roomType.id,
+        roomTypeId: pendingRoomType.id,
         checkIn: toDate(searchParams.checkIn),
         checkOut: toDate(searchParams.checkOut),
         guestsCount: searchParams.guests,
       })
 
       setOpen(false)
-      nav('/profile') // после успеха ведём в личный кабинет
+      setConfirmOpen(false)
+      setPendingRoomType(null)
+
+      nav('/profile')
     } catch (e) {
       alert(getApiErrorMessage(e))
     } finally {
+      setConfirmLoading(false)
       setBookingLoading(false)
     }
   }
+
+  const nightsBetween = (checkIn: string, checkOut: string) => {
+    const [y1, m1, d1] = checkIn.split('-').map(Number)
+    const [y2, m2, d2] = checkOut.split('-').map(Number)
+
+    const t1 = Date.UTC(y1, m1 - 1, d1)
+    const t2 = Date.UTC(y2, m2 - 1, d2)
+
+    return Math.max(0, Math.round((t2 - t1) / (24 * 60 * 60 * 1000)))
+  }
+
+  const rubFmt = new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB',
+    maximumFractionDigits: 0,
+  })
+
+  const confirmText = React.useMemo(() => {
+    if (!pendingRoomType || !searchParams) return ''
+
+    const nights = nightsBetween(searchParams.checkIn, searchParams.checkOut)
+    const total = pendingRoomType.pricePerNight * nights
+
+    return [
+      `Тип: ${pendingRoomType.name}`,
+      `Гостей: ${searchParams.guests}`,
+      `Даты: с ${searchParams.checkIn} по ${searchParams.checkOut}`,
+      `Ночей: ${nights}`,
+      `Цена за ночь: ${rubFmt.format(pendingRoomType.pricePerNight)}`,
+      `Итого: ${rubFmt.format(total)}`,
+    ].join('\n')
+  }, [pendingRoomType, searchParams])
 
   return (
     <>
@@ -114,7 +154,7 @@ const Home: React.FC = () => {
         <Hero
           loading={loading}
           onSearch={async (params) => {
-            setSearchParams(params)   // 3) сохраняем поиск
+            setSearchParams(params)
             setShowResults(true)
             await fetchAvailable(params)
           }}
@@ -149,6 +189,21 @@ const Home: React.FC = () => {
       />
 
       <AuthRequiredModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+
+      <ConfirmModal
+        open={confirmOpen}
+        title="Подтвердить бронирование?"
+        text={confirmText}
+        confirmText="Забронировать"
+        cancelText="Отмена"
+        loading={confirmLoading}
+        onClose={() => {
+          if (confirmLoading) return
+          setConfirmOpen(false)
+          setPendingRoomType(null)
+        }}
+        onConfirm={doCreateBooking}
+      />
     </>
   )
 }

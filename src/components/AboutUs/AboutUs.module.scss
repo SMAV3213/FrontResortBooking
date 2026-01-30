@@ -21,8 +21,8 @@
 .heroLeft {
   padding: 18px;
   border-radius: 16px;
-  border: 1px solid rgba(v.$text, 0.12);
-  background: rgba(#fff, 0.04);
+  border: 1px solid var(--border);
+  background: var(--card-bg);
 }
 
 .heroRight {
@@ -34,11 +34,12 @@
   font-size: 34px;
   line-height: 1.15;
   letter-spacing: -0.02em;
+  color: var(--text);
 }
 
 .lead {
   margin: 12px 0 0;
-  color: rgba(v.$text, 0.78);
+  color: var(--muted);
   font-size: 15px;
   line-height: 1.55;
 }
@@ -53,22 +54,23 @@
 .heroCard {
   padding: 18px;
   border-radius: 16px;
-  border: 1px solid rgba(v.$text, 0.12);
+  border: 1px solid var(--border);
   background:
-    radial-gradient(900px 500px at 30% 0%, rgba(v.$primary, 0.14), transparent 65%),
-    rgba(#fff, 0.04);
+    radial-gradient(900px 500px at 30% 0%, var(--primary-glow), transparent 65%),
+    var(--card-bg);
 }
 
 .heroCardTitle {
   font-weight: 800;
   font-size: 14px;
   margin-bottom: 10px;
+  color: var(--text);
 }
 
 .list {
   margin: 0;
   padding-left: 18px;
-  color: rgba(v.$text, 0.82);
+  color: var(--text-soft);
   line-height: 1.6;
 }
 
@@ -84,29 +86,31 @@
   margin: 0;
   font-size: 20px;
   font-weight: 900;
+  color: var(--text);
 }
 
 .h3 {
   margin: 0 0 8px;
   font-size: 15px;
   font-weight: 900;
+  color: var(--text);
 }
 
 .text {
   margin: 0;
-  color: rgba(v.$text, 0.8);
+  color: var(--text-soft);
   line-height: 1.55;
   font-size: 14px;
 }
 
 .muted {
-  color: rgba(v.$text, 0.72);
+  color: var(--muted);
   margin: 6px 0 0;
 }
 
 .card {
-  border: 1px solid rgba(v.$text, 0.12);
-  background: rgba(#fff, 0.04);
+  border: 1px solid var(--border);
+  background: var(--card-bg);
   border-radius: 16px;
   padding: 16px;
 }
@@ -136,8 +140,8 @@
 }
 
 .stat {
-  border: 1px solid rgba(v.$text, 0.12);
-  background: rgba(#fff, 0.04);
+  border: 1px solid var(--border);
+  background: var(--card-bg);
   border-radius: 16px;
   padding: 14px 16px;
 }
@@ -146,11 +150,12 @@
   font-size: 22px;
   font-weight: 900;
   letter-spacing: -0.02em;
+  color: var(--text);
 }
 
 .statLabel {
   margin-top: 4px;
-  color: rgba(v.$text, 0.72);
+  color: var(--muted);
   font-size: 13px;
 }
 
@@ -173,8 +178,8 @@
 }
 
 .person {
-  border: 1px solid rgba(v.$text, 0.12);
-  background: rgba(#fff, 0.04);
+  border: 1px solid var(--border);
+  background: var(--card-bg);
   border-radius: 16px;
   padding: 14px;
 }
@@ -183,8 +188,8 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 14px;
-  background: rgba(#fff, 0.06);
-  border: 1px solid rgba(v.$text, 0.12);
+  background: var(--field-bg);
+  border: 1px solid var(--border);
   background-size: cover;
   background-position: center;
 }
@@ -192,11 +197,12 @@
 .personName {
   margin-top: 10px;
   font-weight: 900;
+  color: var(--text);
 }
 
 .personRole {
   margin-top: 4px;
-  color: rgba(v.$text, 0.72);
+  color: var(--muted);
   font-size: 13px;
 }
 
@@ -223,16 +229,16 @@
   justify-content: space-between;
   gap: 10px;
   padding: 10px 0;
-  border-bottom: 1px solid rgba(v.$text, 0.10);
+  border-bottom: 1px solid var(--border);
 }
 
 .key {
-  color: rgba(v.$text, 0.72);
+  color: var(--muted);
 }
 
 .val {
   font-weight: 700;
-  color: v.$text;
+  color: var(--text);
 }
 
 .actions {
@@ -252,10 +258,10 @@
   min-height: 320px;
   display: grid;
   place-items: center;
-  color: rgba(v.$text, 0.72);
+  color: var(--muted);
   background:
-    radial-gradient(900px 500px at 30% 0%, rgba(v.$primary, 0.14), transparent 65%),
-    rgba(#fff, 0.04);
+    radial-gradient(900px 500px at 30% 0%, var(--primary-glow), transparent 65%),
+    var(--card-bg);
 }
 
 .footer {
@@ -263,7 +269,7 @@
 }
 
 .footerInner {
-  border-top: 1px solid rgba(v.$text, 0.10);
+  border-top: 1px solid var(--border);
   padding-top: 16px;
   display: flex;
   justify-content: space-between;
@@ -274,6 +280,7 @@
 
 .brand {
   font-weight: 900;
+  color: var(--text);
 }
 
 .footerRight {
@@ -282,9 +289,9 @@
 }
 
 .footerLink {
-  color: rgba(v.$text, 0.78);
+  color: var(--muted);
 }
 
 .footerLink:hover {
-  color: v.$text;
+  color: var(--text);
 }

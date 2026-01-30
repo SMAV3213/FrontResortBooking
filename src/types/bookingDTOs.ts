@@ -8,7 +8,7 @@ export interface BookingDTO {
     checkOut: string
     guestsCount: number
     totalPrice: number
-    status: string
+    status: BookingStatus
     createdAt: string
 }
 
@@ -26,9 +26,4 @@ export interface UpdateBookingDTO {
     guestsCount: number;
 }
 
-export enum EBookingStatus {
-    Created,
-    Confirmed,
-    Cancelled,
-    Completed
-}
+export type BookingStatus = 'Created' | 'Confirmed' | 'Cancelled' | 'Completed'

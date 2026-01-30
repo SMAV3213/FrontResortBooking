@@ -1,9 +1,9 @@
 @use '../../styles/variables' as v;
 
 .br-footer {
-    border-top: 1px solid v.$border;
-    background: rgba(v.$surface, 0.45);
-    border-radius: v.$radius
+    border-top: 1px solid var(--surface);
+    background: rgba(var(--surface), 0.45);
+    border-radius: var(--radius)
 }
 
 .br-footer-inner {
@@ -15,7 +15,7 @@
 }
 
 .br-copy {
-    color: v.$muted;
+    color: var(--muted);
     font-size: 14px;
 }
 
@@ -25,13 +25,13 @@
 
     a {
         font-size: 14px;
-        color: rgba(v.$text, 0.85);
+        color: rgba(var(--text), 0.85);
         text-decoration: none;
     }
 
     a:hover {
         text-decoration: underline;
-        color: v.$text;
+        color: var(--text);
     }
 }
 

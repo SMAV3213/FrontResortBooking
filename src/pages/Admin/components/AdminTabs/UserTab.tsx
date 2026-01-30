@@ -5,6 +5,7 @@ import AdminSection from '../AdminSection'
 import ChangeRoleModal from '../../../../modals/ChangeRoleModal'
 import Pagination from '../../../../components/Pagination/Pagination'
 import AdminListToolbar from '../AdminToolBar'
+import ConfirmModal from '../../../../components/ConfirmModal/ConfirmModal'
 
 import { userRequests } from '../../../../api'
 import { getApiErrorMessage } from '../../../../api/getApiErrorMessage'
@@ -27,6 +28,11 @@ const UsersTab: React.FC = () => {
 
   const [roleModalOpen, setRoleModalOpen] = React.useState(false)
   const [selectedUser, setSelectedUser] = React.useState<UserDTO | null>(null)
+
+  // confirm delete
+  const [confirmOpen, setConfirmOpen] = React.useState(false)
+  const [confirmLoading, setConfirmLoading] = React.useState(false)
+  const [userToDelete, setUserToDelete] = React.useState<UserDTO | null>(null)
 
   const load = React.useCallback(async () => {
     setError(null)
@@ -56,16 +62,6 @@ const UsersTab: React.FC = () => {
     return () => clearTimeout(t)
   }, [load])
 
-  const remove = async (id: string) => {
-    if (!window.confirm('Удалить пользователя?')) return
-    try {
-      await userRequests.remove(id)
-      await load()
-    } catch (e) {
-      alert(getApiErrorMessage(e))
-    }
-  }
-
   const changeRole = async (userId: string, role: ERole) => {
     try {
       await userRequests.changeRole(userId, { role })
@@ -75,6 +71,30 @@ const UsersTab: React.FC = () => {
     }
   }
 
+  const openDelete = (u: UserDTO) => {
+    setUserToDelete(u)
+    setConfirmOpen(true)
+  }
+
+  const doDelete = async () => {
+    if (!userToDelete) return
+    try {
+      setConfirmLoading(true)
+      await userRequests.remove(userToDelete.id)
+      setConfirmOpen(false)
+      setUserToDelete(null)
+      await load()
+    } catch (e) {
+      alert(getApiErrorMessage(e))
+    } finally {
+      setConfirmLoading(false)
+    }
+  }
+
+  const confirmText = userToDelete
+    ? `${userToDelete.login}\n${userToDelete.email}\n${userToDelete.phoneNumber}\nРоль: ${roleRu(userToDelete.role)}`
+    : ''
+
   return (
     <>
       <AdminSection
@@ -82,49 +102,19 @@ const UsersTab: React.FC = () => {
         actions={
           <AdminListToolbar
             filters={
-              <>
-                <select
-                  className={clsx('select', s.w180)}
-                  value={roleFilter}
-                  onChange={(e) => {
-                    setRoleFilter(e.target.value as any)
-                    setPage(1)
-                  }}
-                >
-                  <option value="">Все роли</option>
-                  <option value="User">Пользователь</option>
-                  <option value="Admin">Администратор</option>
-                </select>
-              </>
+              <select className={clsx('select', s.w180)} value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value as any); setPage(1) }}>
+                <option value="">Все роли</option>
+                <option value="User">Пользователь</option>
+                <option value="Admin">Администратор</option>
+              </select>
             }
             search={
-              <>
-                <input
-                  className={clsx('input', s.w240)}
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value)
-                    setPage(1)
-                  }}
-                  placeholder="Поиск: login/email/phone"
-                />
-              </>
+              <input className={clsx('input', s.w240)} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder="Поиск: login/email/phone" />
             }
             actions={
               <>
-                <button className={clsx('btn', 'btn-ghost')} onClick={load} disabled={loading}>
-                  Обновить
-                </button>
-
-                <button
-                  className={clsx('btn', 'btn-ghost')}
-                  type="button"
-                  onClick={() => {
-                    setSearch('')
-                    setRoleFilter('')
-                    setPage(1)
-                  }}
-                >
+                <button className={clsx('btn', 'btn-ghost')} onClick={load} disabled={loading}>Обновить</button>
+                <button className={clsx('btn', 'btn-ghost')} type="button" onClick={() => { setSearch(''); setRoleFilter(''); setPage(1) }}>
                   Сбросить
                 </button>
               </>
@@ -149,17 +139,10 @@ const UsersTab: React.FC = () => {
                   </div>
 
                   <div className={s.rowActions}>
-                    <button
-                      className={clsx('btn', 'btn-ghost')}
-                      onClick={() => {
-                        setSelectedUser(u)
-                        setRoleModalOpen(true)
-                      }}
-                    >
+                    <button className={clsx('btn', 'btn-ghost')} onClick={() => { setSelectedUser(u); setRoleModalOpen(true) }}>
                       Изменить роль
                     </button>
-
-                    <button className={clsx('btn')} onClick={() => remove(u.id)}>
+                    <button className={clsx('btn')} onClick={() => openDelete(u)}>
                       Удалить
                     </button>
                   </div>
@@ -172,13 +155,26 @@ const UsersTab: React.FC = () => {
         )}
       </AdminSection>
 
+      <ConfirmModal
+        open={confirmOpen}
+        variant="danger"
+        title="Удалить пользователя?"
+        text={confirmText}
+        confirmText="Удалить"
+        cancelText="Отмена"
+        loading={confirmLoading}
+        onClose={() => {
+          if (confirmLoading) return
+          setConfirmOpen(false)
+          setUserToDelete(null)
+        }}
+        onConfirm={doDelete}
+      />
+
       <ChangeRoleModal
         open={roleModalOpen}
         user={selectedUser}
-        onClose={() => {
-          setRoleModalOpen(false)
-          setSelectedUser(null)
-        }}
+        onClose={() => { setRoleModalOpen(false); setSelectedUser(null) }}
         onSave={async (newRole) => {
           if (!selectedUser) return
           await changeRole(selectedUser.id, newRole)

@@ -4,26 +4,31 @@ import clsx from 'clsx'
 import AdminSection from '../AdminSection'
 import Pagination from '../../../../components/Pagination/Pagination'
 import AdminListToolbar from '../AdminToolBar'
+import ConfirmModal from '../../../../components/ConfirmModal/ConfirmModal'
 
-import { bookingRequests } from '../../../../api'
+import { bookingRequests, userRequests, roomRequests, roomTypesRequests } from '../../../../api'
 import { getApiErrorMessage } from '../../../../api/getApiErrorMessage'
-import type { BookingDTO } from '../../../../types/bookingDTOs'
+import type { BookingDTO, BookingStatus } from '../../../../types/bookingDTOs'
 import { bookingStatusRu } from '../../../../shared/labels'
 import BookingEditModal from '../../../../modals/BookingEditModal'
 
+import EntitySearchSelect, { type SearchOption } from '../../../../components/EntitySearchSelect/EntitySearchSelect'
+import type { UserDTO } from '../../../../types/userDTOs'
+import type { RoomDTO } from '../../../../types/roomDTOs'
+import type { RoomTypeWithoutRoomsDTO } from '../../../../types/roomTypeDTOs'
+
 import s from '../../admin.module.scss'
-import type { BookingStatus } from '../../../../api/booking/booking.request'
 
 const dateFmt = new Intl.DateTimeFormat('ru-RU', { year: 'numeric', month: '2-digit', day: '2-digit' })
+
+const pad2 = (n: number) => String(n).padStart(2, '0')
+const dateOnly = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+const toDateTimeParam = (d: string) => (d ? `${d}T00:00:00` : undefined)
 
 const toDate = (v: any) => {
   const d = new Date(v)
   return Number.isNaN(d.getTime()) ? null : d
 }
-
-const pad2 = (n: number) => String(n).padStart(2, '0')
-const dateOnly = (d: Date) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
-const toDateTimeParam = (d: string) => (d ? `${d}T00:00:00` : undefined)
 
 const todayRangeDateOnly = () => {
   const t = new Date()
@@ -51,6 +56,7 @@ const SORT_OPTIONS: { value: 'checkIn' | 'createdAt' | 'totalPrice'; label: stri
 const MINI_TAKE = 5
 
 const BookingsTab: React.FC = () => {
+  // MAIN LIST
   const [items, setItems] = React.useState<BookingDTO[]>([])
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -59,32 +65,67 @@ const BookingsTab: React.FC = () => {
   const pageSize = 20
   const [total, setTotal] = React.useState(0)
 
+  // filters
   const [status, setStatus] = React.useState<'' | BookingStatus>('')
 
-  const [userId, setUserId] = React.useState('')      
-  const [roomId, setRoomId] = React.useState('')      
-  const [roomTypeId, setRoomTypeId] = React.useState('') 
+  const [userOpt, setUserOpt] = React.useState<SearchOption<UserDTO> | null>(null)
+  const [roomOpt, setRoomOpt] = React.useState<SearchOption<RoomDTO> | null>(null)
+  const [roomTypeOpt, setRoomTypeOpt] = React.useState<SearchOption<RoomTypeWithoutRoomsDTO> | null>(null)
 
-  const [from, setFrom] = React.useState<string>('')
-  const [to, setTo] = React.useState<string>('')    
+  const [from, setFrom] = React.useState<string>('') // legacy
+  const [to, setTo] = React.useState<string>('')     // legacy
 
-  const [checkInFrom, setCheckInFrom] = React.useState<string>('')   
-  const [checkInTo, setCheckInTo] = React.useState<string>('')      
-  const [checkOutFrom, setCheckOutFrom] = React.useState<string>('')
-  const [checkOutTo, setCheckOutTo] = React.useState<string>('')     
+  const [checkInFrom, setCheckInFrom] = React.useState<string>('')   // YYYY-MM-DD
+  const [checkInTo, setCheckInTo] = React.useState<string>('')       // YYYY-MM-DD
+  const [checkOutFrom, setCheckOutFrom] = React.useState<string>('') // YYYY-MM-DD
+  const [checkOutTo, setCheckOutTo] = React.useState<string>('')     // YYYY-MM-DD
 
   const [sortBy, setSortBy] = React.useState<'checkIn' | 'createdAt' | 'totalPrice'>('checkIn')
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc')
 
   const [showAdvanced, setShowAdvanced] = React.useState(false)
 
+  // TODAY widgets
   const [todayIn, setTodayIn] = React.useState<BookingDTO[]>([])
   const [todayOut, setTodayOut] = React.useState<BookingDTO[]>([])
   const [todayLoading, setTodayLoading] = React.useState(false)
   const [todayError, setTodayError] = React.useState<string | null>(null)
 
+  // EDIT modal
   const [editOpen, setEditOpen] = React.useState(false)
   const [editing, setEditing] = React.useState<BookingDTO | null>(null)
+
+  // CONFIRM cancel modal
+  const [confirmOpen, setConfirmOpen] = React.useState(false)
+  const [confirmLoading, setConfirmLoading] = React.useState(false)
+  const [bookingToCancel, setBookingToCancel] = React.useState<BookingDTO | null>(null)
+
+  const loadUsers = React.useCallback(async (q: string) => {
+    const res = await userRequests.getAll({ page: 1, pageSize: 10, search: q || undefined })
+    return res.items.map((u) => ({
+      value: u.id,
+      label: `${u.login}${u.email ? ` • ${u.email}` : ''}`,
+      raw: u,
+    }))
+  }, [])
+
+  const loadRooms = React.useCallback(async (q: string) => {
+    const res = await roomRequests.getAll({ page: 1, pageSize: 10, search: q || undefined, sortBy: 'number', sortDir: 'asc' })
+    return res.items.map((r) => ({
+      value: r.id,
+      label: `Комната ${r.number}${r.roomType?.name ? ` • ${r.roomType.name}` : ''}`,
+      raw: r,
+    }))
+  }, [])
+
+  const loadRoomTypes = React.useCallback(async (q: string) => {
+    const res = await roomTypesRequests.getAll({ page: 1, pageSize: 10, search: q || undefined, sortBy: 'name', sortDir: 'asc' })
+    return res.items.map((t) => ({
+      value: t.id,
+      label: `${t.name} • до ${t.capacity}`,
+      raw: t,
+    }))
+  }, [])
 
   const loadToday = React.useCallback(async () => {
     setTodayError(null)
@@ -132,9 +173,9 @@ const BookingsTab: React.FC = () => {
         pageSize,
 
         status: status || undefined,
-        userId: userId.trim() || undefined,
-        roomId: roomId.trim() || undefined,
-        roomTypeId: roomTypeId.trim() || undefined,
+        userId: userOpt?.value,
+        roomId: roomOpt?.value,
+        roomTypeId: roomTypeOpt?.value,
 
         from: toDateTimeParam(from),
         to: toDateTimeParam(to),
@@ -161,9 +202,9 @@ const BookingsTab: React.FC = () => {
     page,
     pageSize,
     status,
-    userId,
-    roomId,
-    roomTypeId,
+    userOpt,
+    roomOpt,
+    roomTypeOpt,
     from,
     to,
     checkInFrom,
@@ -187,13 +228,23 @@ const BookingsTab: React.FC = () => {
     await Promise.all([loadToday(), loadMain()])
   }
 
-  const cancel = async (id: string) => {
-    if (!window.confirm('Отменить бронь?')) return
+  const openCancelConfirm = (b: BookingDTO) => {
+    setBookingToCancel(b)
+    setConfirmOpen(true)
+  }
+
+  const doCancel = async () => {
+    if (!bookingToCancel) return
     try {
-      await bookingRequests.cancel(id)
+      setConfirmLoading(true)
+      await bookingRequests.cancel(bookingToCancel.id)
+      setConfirmOpen(false)
+      setBookingToCancel(null)
       await refreshAll()
     } catch (e) {
       alert(getApiErrorMessage(e))
+    } finally {
+      setConfirmLoading(false)
     }
   }
 
@@ -201,9 +252,9 @@ const BookingsTab: React.FC = () => {
     const { start, end } = todayRangeDateOnly()
     setPage(1)
     setStatus('')
-    setUserId('')
-    setRoomId('')
-    setRoomTypeId('')
+    setUserOpt(null)
+    setRoomOpt(null)
+    setRoomTypeOpt(null)
     setFrom('')
     setTo('')
     setCheckInFrom(start)
@@ -218,9 +269,9 @@ const BookingsTab: React.FC = () => {
     const { start, end } = todayRangeDateOnly()
     setPage(1)
     setStatus('')
-    setUserId('')
-    setRoomId('')
-    setRoomTypeId('')
+    setUserOpt(null)
+    setRoomOpt(null)
+    setRoomTypeOpt(null)
     setFrom('')
     setTo('')
     setCheckInFrom('')
@@ -234,9 +285,9 @@ const BookingsTab: React.FC = () => {
   const resetAllFilters = () => {
     setPage(1)
     setStatus('')
-    setUserId('')
-    setRoomId('')
-    setRoomTypeId('')
+    setUserOpt(null)
+    setRoomOpt(null)
+    setRoomTypeOpt(null)
     setFrom('')
     setTo('')
     setCheckInFrom('')
@@ -263,12 +314,25 @@ const BookingsTab: React.FC = () => {
           </div>
         </div>
 
-        <button className={clsx('btn', 'btn-ghost', s.miniBtn)} onClick={() => cancel(b.id)}>
+        <button className={clsx('btn', 'btn-ghost', s.miniBtn)} onClick={() => openCancelConfirm(b)}>
           Отменить
         </button>
       </div>
     )
   }
+
+  const confirmText = React.useMemo(() => {
+    if (!bookingToCancel) return ''
+    const inD = toDate(bookingToCancel.checkIn)
+    const outD = toDate(bookingToCancel.checkOut)
+    return [
+      `Бронь #${bookingToCancel.id.slice(0, 8)}`,
+      `Пользователь: ${bookingToCancel.login}`,
+      `Комната: ${bookingToCancel.number}`,
+      `Даты: ${inD ? dateFmt.format(inD) : bookingToCancel.checkIn} → ${outD ? dateFmt.format(outD) : bookingToCancel.checkOut}`,
+      `Статус: ${bookingStatusRu(bookingToCancel.status)}`,
+    ].join('\n')
+  }, [bookingToCancel])
 
   return (
     <>
@@ -293,114 +357,134 @@ const BookingsTab: React.FC = () => {
                   ))}
                 </select>
 
-                <span>Заезды</span>
+                <div className={s.range}>
+                  <div className={s.rangeTitle}>Заезд</div>
 
-                <input
-                  className="input"
-                  type="date"
-                  value={checkInFrom}
-                  onChange={(e) => {
-                    setCheckInFrom(e.target.value)
-                    setPage(1)
-                  }}
-                  title="CheckInFrom"
-                />
-                <input
-                  className="input"
-                  type="date"
-                  value={checkInTo}
-                  onChange={(e) => {
-                    setCheckInTo(e.target.value)
-                    setPage(1)
-                  }}
-                  title="CheckInTo"
-                />
+                  <div className={s.rangeItem}>
+                    <span className={s.rangeKey}>с</span>
+                    <input
+                      className="input"
+                      type="date"
+                      value={checkInFrom}
+                      onChange={(e) => {
+                        setCheckInFrom(e.target.value)
+                        setPage(1)
+                      }}
+                    />
+                  </div>
 
-                <button
-                  type="button"
-                  className={clsx('btn', 'btn-ghost')}
-                  onClick={() => setShowAdvanced((v) => !v)}
-                >
+                  <div className={s.rangeItem}>
+                    <span className={s.rangeKey}>по</span>
+                    <input
+                      className="input"
+                      type="date"
+                      value={checkInTo}
+                      onChange={(e) => {
+                        setCheckInTo(e.target.value)
+                        setPage(1)
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <button type="button" className={clsx('btn', 'btn-ghost')} onClick={() => setShowAdvanced((v) => !v)}>
                   {showAdvanced ? 'Скрыть' : 'Дополнительно'}
                 </button>
 
                 {showAdvanced && (
-                  <>
-                    <span>Выезды</span>
-                    <input
-                      className="input"
-                      type="date"
-                      value={checkOutFrom}
-                      onChange={(e) => {
-                        setCheckOutFrom(e.target.value)
-                        setPage(1)
-                      }}
-                      title="CheckOutFrom"
-                    />
-                    <input
-                      className="input"
-                      type="date"
-                      value={checkOutTo}
-                      onChange={(e) => {
-                        setCheckOutTo(e.target.value)
-                        setPage(1)
-                      }}
-                      title="CheckOutTo"
-                    />
+                  <div className={s.advancedBlock}>
+                    <div className={s.range}>
+                      <div className={s.rangeTitle}>Выезд</div>
 
-                    <span>From/To</span>
-                    <input
-                      className="input"
-                      type="date"
-                      value={from}
-                      onChange={(e) => {
-                        setFrom(e.target.value)
-                        setPage(1)
-                      }}
-                      title="From (legacy)"
-                    />
-                    <input
-                      className="input"
-                      type="date"
-                      value={to}
-                      onChange={(e) => {
-                        setTo(e.target.value)
-                        setPage(1)
-                      }}
-                      title="To (legacy)"
-                    />
+                      <div className={s.rangeItem}>
+                        <span className={s.rangeKey}>с</span>
+                        <input
+                          className="input"
+                          type="date"
+                          value={checkOutFrom}
+                          onChange={(e) => {
+                            setCheckOutFrom(e.target.value)
+                            setPage(1)
+                          }}
+                        />
+                      </div>
 
-                    <input
-                      className="input"
-                      value={userId}
-                      onChange={(e) => {
-                        setUserId(e.target.value)
-                        setPage(1)
-                      }}
-                      placeholder="UserId (GUID)"
-                      title="UserId"
-                    />
-                    <input
-                      className="input"
-                      value={roomId}
-                      onChange={(e) => {
-                        setRoomId(e.target.value)
-                        setPage(1)
-                      }}
-                      placeholder="RoomId (GUID)"
-                      title="RoomId"
-                    />
-                    <input
-                      className="input"
-                      value={roomTypeId}
-                      onChange={(e) => {
-                        setRoomTypeId(e.target.value)
-                        setPage(1)
-                      }}
-                      placeholder="RoomTypeId (GUID)"
-                      title="RoomTypeId"
-                    />
-                  </>
+                      <div className={s.rangeItem}>
+                        <span className={s.rangeKey}>по</span>
+                        <input
+                          className="input"
+                          type="date"
+                          value={checkOutTo}
+                          onChange={(e) => {
+                            setCheckOutTo(e.target.value)
+                            setPage(1)
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={s.range}>
+                      <div className={s.rangeTitle}>Период проживания</div>
+
+                      <div className={s.rangeItem}>
+                        <span className={s.rangeKey}>с</span>
+                        <input
+                          className="input"
+                          type="date"
+                          value={from}
+                          onChange={(e) => {
+                            setFrom(e.target.value)
+                            setPage(1)
+                          }}
+                        />
+                      </div>
+
+                      <div className={s.rangeItem}>
+                        <span className={s.rangeKey}>по</span>
+                        <input
+                          className="input"
+                          type="date"
+                          value={to}
+                          onChange={(e) => {
+                            setTo(e.target.value)
+                            setPage(1)
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={s.searchContainer}>
+                      <EntitySearchSelect
+                        value={userOpt}
+                        onChange={(v) => {
+                          setUserOpt(v)
+                          setPage(1)
+                        }}
+                        loadOptions={loadUsers}
+                        placeholder="Пользователь"
+                      />
+
+                      <EntitySearchSelect
+                        value={roomOpt}
+                        onChange={(v) => {
+                          setRoomOpt(v)
+                          setPage(1)
+                        }}
+                        loadOptions={loadRooms}
+                        placeholder="Комната"
+                      />
+
+                      <EntitySearchSelect
+                        value={roomTypeOpt}
+                        onChange={(v) => {
+                          setRoomTypeOpt(v)
+                          setPage(1)
+                        }}
+                        loadOptions={loadRoomTypes}
+                        placeholder="Тип комнаты"
+                      />
+                    </div>
+                  </div>
                 )}
               </>
             }
@@ -448,7 +532,6 @@ const BookingsTab: React.FC = () => {
           />
         }
       >
-        {/* TODAY WIDGETS */}
         <div className={s.todayGrid}>
           <div className={s.todayCard}>
             <div className={s.todayHead}>
@@ -487,7 +570,6 @@ const BookingsTab: React.FC = () => {
           </div>
         </div>
 
-        {/* MAIN LIST */}
         {error && <div className={s.error}>{error}</div>}
 
         {loading ? (
@@ -524,7 +606,7 @@ const BookingsTab: React.FC = () => {
                         Редактировать
                       </button>
 
-                      <button className={clsx('btn', 'btn-ghost')} onClick={() => cancel(b.id)}>
+                      <button className={clsx('btn', 'btn-ghost')} onClick={() => openCancelConfirm(b)}>
                         Отменить
                       </button>
                     </div>
@@ -537,6 +619,22 @@ const BookingsTab: React.FC = () => {
           </>
         )}
       </AdminSection>
+
+      <ConfirmModal
+        open={confirmOpen}
+        variant="danger"
+        title="Отменить бронь?"
+        text={confirmText}
+        confirmText="Отменить"
+        cancelText="Не отменять"
+        loading={confirmLoading}
+        onClose={() => {
+          if (confirmLoading) return
+          setConfirmOpen(false)
+          setBookingToCancel(null)
+        }}
+        onConfirm={doCancel}
+      />
 
       <BookingEditModal
         open={editOpen}

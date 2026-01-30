@@ -61,8 +61,10 @@ const Login: React.FC = () => {
               <button className={clsx('btn', 'btn-primary')} type="submit" disabled={loading}>
                 {loading ? 'Входим…' : 'Войти'}
               </button>
-              <Link className={clsx('btn', 'btn-ghost')} to="/register">
-                Регистрация
+              <Link to="/register">
+                <button className={clsx('btn', 'btn-ghost')}>
+                  Регистрация
+                </button>
               </Link>
             </div>
 

@@ -8,17 +8,18 @@
     display: flex;
 
     background:
-        radial-gradient(900px 420px at 20% 10%, rgba(v.$primary, 0.25), transparent 60%),
-        linear-gradient(135deg, rgba(#fff, 0.06), rgba(#fff, 0.02));
-    border: 1px solid v.$border;
-    box-shadow: v.$shadow;
+        radial-gradient(900px 420px at 20% 10%, var(--primary-glow), transparent 60%),
+        linear-gradient(135deg, var(--glass-06), var(--glass-02));
+
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
     margin-top: 8px;
 }
 
 .br-list-overlay {
     width: 100%;
     padding: 32px 0;
-    background: linear-gradient(180deg, rgba(v.$bg, 0.15), rgba(v.$bg, 0.55));
+    background: linear-gradient(180deg, var(--hero-overlay-top), var(--hero-overlay-bottom));
 }
 
 .grid {
@@ -47,7 +48,7 @@
     letter-spacing: 0.3px;
     text-decoration: none;
     font-size: 32px;
-
+    color: var(--text);
 }
 
 .cell {
@@ -56,8 +57,8 @@
 
 .empty {
     padding: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--border);
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04);
-    color: rgba(255, 255, 255, 0.75);
+    background: var(--card-bg);
+    color: var(--muted);
 }

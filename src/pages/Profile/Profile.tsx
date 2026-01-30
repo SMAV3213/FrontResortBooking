@@ -1,15 +1,16 @@
 import React from 'react'
 import clsx from 'clsx'
 
+import ConfirmModal from '../../components/ConfirmModal/ConfirmModal'
+import Pagination from '../../components/Pagination/Pagination'
+
 import { useAuth } from '../../auth/AuthProvider'
 import { bookingRequests, userRequests } from '../../api'
 import { getApiErrorMessage } from '../../api/getApiErrorMessage'
 
 import type { BookingDTO } from '../../types/bookingDTOs'
 import type { UserDTO, UpdateUserDTO } from '../../types/userDTOs'
-
 import { bookingStatusRu } from '../../shared/labels'
-import Pagination from '../../components/Pagination/Pagination'
 
 import s from './profile.module.scss'
 
@@ -27,9 +28,14 @@ const startOfDayTs = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getD
 const daysUntil = (date: Date) => Math.ceil((startOfDayTs(date) - startOfDayTs(new Date())) / MS_DAY)
 
 const canCancelByStatus = (status: string) => status === 'Created' || status === 'Confirmed'
+const toDateTimeParam = (d: string) => (d ? `${d}T00:00:00` : undefined)
 
 const Profile: React.FC = () => {
   const { user, logout, refreshMe } = useAuth()
+
+  const [confirmOpen, setConfirmOpen] = React.useState(false)
+  const [confirmLoading, setConfirmLoading] = React.useState(false)
+  const [bookingToCancel, setBookingToCancel] = React.useState<BookingDTO | null>(null)
 
   const [profileLoading, setProfileLoading] = React.useState(false)
   const [profileError, setProfileError] = React.useState<string | null>(null)
@@ -39,7 +45,11 @@ const Profile: React.FC = () => {
     phoneNumber: user?.phoneNumber ?? '',
   })
 
-  // bookings (paged)
+  const [status, setStatus] = React.useState<'' | 'Created' | 'Confirmed' | 'Cancelled' | 'Completed'>('')
+  const [checkInFrom, setCheckInFrom] = React.useState<string>('') // YYYY-MM-DD
+  const [checkInTo, setCheckInTo] = React.useState<string>('')     // YYYY-MM-DD
+
+  const [mode, setMode] = React.useState<'upcoming' | 'all' | 'past'>('upcoming')
   const [bookings, setBookings] = React.useState<BookingDTO[]>([])
   const [bookingsLoading, setBookingsLoading] = React.useState(false)
   const [bookingsError, setBookingsError] = React.useState<string | null>(null)
@@ -57,13 +67,22 @@ const Profile: React.FC = () => {
   const loadBookings = React.useCallback(async () => {
     setBookingsError(null)
     setBookingsLoading(true)
+
     try {
+      const today = todayDateOnly()
+
       const res = await bookingRequests.getMy({
         page,
         pageSize,
+        status: status || undefined,
+
+        checkInFrom: mode === 'upcoming' ? toDateTimeParam(today) : toDateTimeParam(checkInFrom),
+        checkInTo: mode === 'past' ? toDateTimeParam(today) : toDateTimeParam(checkInTo),
+
         sortBy: 'checkIn',
-        sortDir: 'desc',
+        sortDir: mode === 'upcoming' ? 'asc' : 'desc',
       })
+
       setBookings(res.items)
       setTotal(res.total)
     } catch (e) {
@@ -73,7 +92,7 @@ const Profile: React.FC = () => {
     } finally {
       setBookingsLoading(false)
     }
-  }, [page])
+  }, [page, status, checkInFrom, checkInTo, mode])
 
   React.useEffect(() => {
     refreshMe()
@@ -82,6 +101,12 @@ const Profile: React.FC = () => {
   React.useEffect(() => {
     loadBookings()
   }, [loadBookings])
+
+  const pad2 = (n: number) => String(n).padStart(2, '0')
+  const todayDateOnly = () => {
+    const d = new Date()
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+  }
 
   const onSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -104,31 +129,22 @@ const Profile: React.FC = () => {
     }
   }
 
-  const onCancelBooking = async (b: BookingDTO) => {
-    const checkIn = toDate((b as any).checkIn ?? (b as any).checkInDate)
-    const statusRaw = String((b as any).status)
+  const openCancelConfirm = (b: BookingDTO) => {
+    const inD = toDate(b.checkIn)
+    const statusRaw = String(b.status)
 
     if (!canCancelByStatus(statusRaw)) {
       alert('Эту бронь нельзя отменить по статусу.')
       return
     }
 
-    if (checkIn) {
-      const left = daysUntil(checkIn)
-      if (left < 3) {
-        alert('До заезда осталось менее 3 дней. Отмена через поддержку.\nПозвоните в поддержку.')
-        return
-      }
+    if (inD && daysUntil(inD) < 3) {
+      alert('До заезда осталось менее 3 дней. Отмена через поддержку.\nПозвоните в поддержку.')
+      return
     }
 
-    if (!window.confirm('Отменить бронь?')) return
-
-    try {
-      await bookingRequests.cancel(b.id)
-      await loadBookings()
-    } catch (e) {
-      alert(getApiErrorMessage(e))
-    }
+    setBookingToCancel(b)
+    setConfirmOpen(true)
   }
 
   const me: UserDTO | null = user ?? null
@@ -136,13 +152,9 @@ const Profile: React.FC = () => {
   return (
     <main className={s.page}>
       <div className={clsx('br-container', s.grid)}>
-        {/* Профиль */}
         <section className={s.card}>
           <div className={s.cardHead}>
             <h1 className={s.h1}>Личный кабинет</h1>
-            <button type="button" className={clsx('btn', 'btn-ghost')} onClick={logout}>
-              Выйти
-            </button>
           </div>
 
           <div className={s.profileMeta}>
@@ -176,10 +188,95 @@ const Profile: React.FC = () => {
           </form>
         </section>
 
-        {/* Брони */}
         <section className={s.card}>
           <div className={s.cardHead}>
             <h2 className={s.h2}>Мои бронирования</h2>
+
+            <div className={s.filters}>
+              <select
+                className="select"
+                value={status}
+                onChange={(e) => {
+                  setStatus(e.target.value as any)
+                  setPage(1)
+                }}
+              >
+                <option value="">Все статусы</option>
+                <option value="Created">Создано</option>
+                <option value="Confirmed">Подтверждено</option>
+                <option value="Cancelled">Отменено</option>
+                <option value="Completed">Завершено</option>
+              </select>
+
+              <div className={s.range}>
+                <div className={s.rangeTitle}>Заезд</div>
+
+                <div className={s.rangeItem}>
+                  <span className={s.rangeKey}>с</span>
+                  <input
+                    className="input"
+                    type="date"
+                    value={checkInFrom}
+                    onChange={(e) => {
+                      setCheckInFrom(e.target.value)
+                      setPage(1)
+                    }}
+                  />
+                </div>
+
+                <div className={s.rangeItem}>
+                  <span className={s.rangeKey}>по</span>
+                  <input
+                    className="input"
+                    type="date"
+                    value={checkInTo}
+                    onChange={(e) => {
+                      setCheckInTo(e.target.value)
+                      setPage(1)
+                    }}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className={clsx('btn', 'btn-ghost')}
+                onClick={() => {
+                  setStatus('')
+                  setCheckInFrom('')
+                  setCheckInTo('')
+                  setPage(1)
+                }}
+              >
+                Сбросить
+              </button>
+
+              <div className={clsx(s.buttonsConteiner)}>
+                <button
+                  type="button"
+                  className={clsx('btn', mode === 'upcoming' ? 'btn-primary' : 'btn-ghost')}
+                  onClick={() => { setMode('upcoming'); setPage(1) }}
+                >
+                  Предстоящие
+                </button>
+
+                <button
+                  type="button"
+                  className={clsx('btn', mode === 'all' ? 'btn-primary' : 'btn-ghost')}
+                  onClick={() => { setMode('all'); setPage(1) }}
+                >
+                  Все
+                </button>
+
+                <button
+                  type="button"
+                  className={clsx('btn', mode === 'past' ? 'btn-primary' : 'btn-ghost')}
+                  onClick={() => { setMode('past'); setPage(1) }}
+                >
+                  История
+                </button>
+              </div>
+            </div>
             <button className={clsx('btn', 'btn-ghost')} type="button" onClick={loadBookings} disabled={bookingsLoading}>
               {bookingsLoading ? 'Обновляем…' : 'Обновить'}
             </button>
@@ -195,9 +292,9 @@ const Profile: React.FC = () => {
             <>
               <div className={s.bookingList}>
                 {bookings.map((b) => {
-                  const inD = toDate((b as any).checkIn ?? (b as any).checkInDate)
-                  const outD = toDate((b as any).checkOut ?? (b as any).checkOutDate)
-                  const statusRaw = String((b as any).status)
+                  const inD = toDate(b.checkIn)
+                  const outD = toDate(b.checkOut)
+                  const statusRaw = String(b.status)
 
                   const blockedByDays = inD ? daysUntil(inD) < 3 : false
                   const blocked = !canCancelByStatus(statusRaw) || blockedByDays
@@ -219,14 +316,12 @@ const Profile: React.FC = () => {
 
                         <div className={s.row}>
                           <span className={s.key}>Гостей</span>
-                          <span className={s.val}>{(b as any).guestsCount}</span>
+                          <span className={s.val}>{b.guestsCount}</span>
                         </div>
 
                         <div className={s.row}>
                           <span className={s.key}>Стоимость</span>
-                          <span className={s.val}>
-                            {typeof (b as any).totalPrice === 'number' ? priceFmt.format((b as any).totalPrice) : '—'}
-                          </span>
+                          <span className={s.val}>{priceFmt.format(b.totalPrice)}</span>
                         </div>
                       </div>
 
@@ -235,17 +330,7 @@ const Profile: React.FC = () => {
                           type="button"
                           className={clsx('btn', 'btn-ghost')}
                           aria-disabled={blocked}
-                          onClick={() => {
-                            if (blockedByDays) {
-                              alert('До заезда осталось менее 3 дней. Отмена через поддержку.\nПозвоните в поддержку.')
-                              return
-                            }
-                            if (!canCancelByStatus(statusRaw)) {
-                              alert('Эту бронь нельзя отменить по статусу.')
-                              return
-                            }
-                            onCancelBooking(b)
-                          }}
+                          onClick={() => openCancelConfirm(b)}
                         >
                           Отменить
                         </button>
@@ -260,6 +345,37 @@ const Profile: React.FC = () => {
           )}
         </section>
       </div>
+
+      <ConfirmModal
+        open={confirmOpen}
+        variant="danger"
+        title="Отменить бронь?"
+        text={
+          bookingToCancel
+            ? `Бронь #${bookingToCancel.id.slice(0, 8)}\nКомната: ${bookingToCancel.number}\nДаты: ${bookingToCancel.checkIn} → ${bookingToCancel.checkOut}`
+            : ''
+        }
+        confirmText="Отменить"
+        cancelText="Не отменять"
+        loading={confirmLoading}
+        onClose={() => {
+          if (confirmLoading) return
+          setConfirmOpen(false)
+          setBookingToCancel(null)
+        }}
+        onConfirm={async () => {
+          if (!bookingToCancel) return
+          try {
+            setConfirmLoading(true)
+            await bookingRequests.cancel(bookingToCancel.id)
+            await loadBookings()
+            setConfirmOpen(false)
+            setBookingToCancel(null)
+          } finally {
+            setConfirmLoading(false)
+          }
+        }}
+      />
     </main>
   )
 }

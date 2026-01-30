@@ -1,3 +1,5 @@
+@use '../../styles/variables' as v;
+
 .overlay {
     position: fixed;
     inset: 0;
@@ -8,8 +10,8 @@
     padding: 18px;
 
     background:
-        radial-gradient(900px 600px at 20% 10%, rgba(74, 163, 255, 0.16), transparent 60%),
-        rgba(0, 0, 0, 0.62);
+        radial-gradient(900px 600px at 20% 10%, var(--primary-glow), transparent 60%),
+        var(--backdrop);
 
     opacity: 0;
     pointer-events: none;
@@ -22,12 +24,12 @@
     overflow: hidden;
 
     border-radius: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: linear-gradient(180deg, rgba(15, 26, 46, 0.92), rgba(12, 20, 35, 0.92));
+    border: 1px solid var(--border);
+    background: var(--modal-bg);
     backdrop-filter: blur(14px);
 
     box-shadow:
-        0 24px 70px rgba(0, 0, 0, 0.55),
+        0 24px 70px rgba(0, 0, 0, 0.35),
         0 0 0 1px rgba(74, 163, 255, 0.10) inset;
 
     transform: translateY(22px) scale(0.965);
@@ -82,7 +84,7 @@
     gap: 12px;
     align-items: flex-start;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    border-bottom: 1px solid var(--border);
 }
 
 .titleWrap {
@@ -93,12 +95,13 @@
     font-size: 18px;
     font-weight: 800;
     line-height: 1.2;
+    color: var(--text);
 }
 
 .subtitle {
     margin-top: 6px;
     font-size: 13px;
-    color: rgba(234, 240, 255, 0.72);
+    color: var(--muted);
 }
 
 .close {
@@ -128,8 +131,8 @@
     position: relative;
     border-radius: 14px;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    background: var(--card-bg);
 }
 
 .image {
@@ -149,7 +152,7 @@
     height: 300px;
     display: grid;
     place-items: center;
-    color: rgba(234, 240, 255, 0.72);
+    color: var(--muted);
 }
 
 .viewerControls {
@@ -175,11 +178,18 @@
     pointer-events: none;
     padding: 8px 10px;
     border-radius: 10px;
+
     background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid var(--border);
     color: rgba(234, 240, 255, 0.9);
+
     font-size: 12px;
     font-weight: 600;
+}
+
+:root[data-theme='light'] .counter {
+    background: rgba(0, 0, 0, 0.18);
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .thumbs {
@@ -193,7 +203,7 @@
 .thumbBtn {
     flex: 0 0 auto;
     padding: 0;
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
     background: transparent;
@@ -206,7 +216,7 @@
 
 .thumbBtn:hover {
     opacity: 1;
-    border-color: rgba(255, 255, 255, 0.26);
+    border-color: var(--border-strong);
 }
 
 .thumbBtn:active {
@@ -236,18 +246,19 @@
 .block {
     padding: 14px;
     border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    background: var(--card-bg);
 }
 
 .blockTitle {
     font-weight: 800;
     font-size: 14px;
     margin-bottom: 8px;
+    color: var(--text);
 }
 
 .text {
-    color: rgba(234, 240, 255, 0.86);
+    color: var(--text-soft);
     font-size: 14px;
     line-height: 1.5;
 }
@@ -264,11 +275,12 @@
 }
 
 .metaKey {
-    color: rgba(234, 240, 255, 0.72);
+    color: var(--muted);
 }
 
 .metaVal {
     font-weight: 700;
+    color: var(--text);
 }
 
 .actions {

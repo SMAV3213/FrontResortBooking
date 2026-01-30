@@ -1,19 +1,13 @@
-$bg: #0b1220;
-$surface: #0f1a2e;
-
-$text: #eaf0ff;
-$muted: rgba(#eaf0ff, 0.72);
-
-$primary: #4aa3ff;
-$primary-hover: #2f8cf3;
-
-$border: rgba(#eaf0ff, 0.16);
-$border-strong: rgba(#eaf0ff, 0.26);
-
+$container: 1200px;
 
 $radius: 14px;
 $radius-sm: 10px;
 
-$shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+$z-header: 50;
+$z-modal: 1000;
+$z-popover: 1100;
 
-$container: 1200px;
+$bp-sm: 520px;
+$bp-md: 760px;
+$bp-lg: 980px;
+$bp-xl: 1200px;

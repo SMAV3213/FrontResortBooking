@@ -4,30 +4,30 @@
   width: 100%;
   text-align: left;
   padding: 0;
-  border: 1px solid v.$border;
+  border: 1px solid var(--border);
   border-radius: v.$radius;
   overflow: hidden;
-  background: rgba(#fff, 0.04);
+  background: var(--card-bg);
   cursor: pointer;
   transition: transform 0.12s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
-  border-color: v.$border-strong;
-  background: rgba(#fff, 0.06);
+  border-color: var(--border-strong);
+  background: var(--card-bg-hover);
 }
 
 .selected {
-  border-color: rgba(v.$primary, 0.8);
-  box-shadow: 0 0 0 4px rgba(v.$primary, 0.18);
+  border-color: rgba(74, 163, 255, 0.8);
+  box-shadow: 0 0 0 4px rgba(74, 163, 255, 0.18);
 }
 
 .cover {
   min-height: 180px;
   background-size: cover;
   background-position: center;
-  background-color: rgba(#000, 0.25);
+  background-color: var(--tag-bg);
 }
 
 .body {
@@ -45,27 +45,27 @@
   font-weight: 800;
   font-size: 26px;
   letter-spacing: 0.2px;
-  color: v.$text;
+  color: var(--text);
 }
 
 .sub {
   margin-top: 8px;
   font-size: 16px;
-  color: v.$text;
+  color: var(--muted);
 }
 
 .price {
   font-weight: 800;
   white-space: nowrap;
   font-size: 16px;
-  color: v.$text;
+  color: var(--text);
   margin-top: 8px;
 }
 
 .per {
   margin-left: 6px;
   font-weight: 600;
-  color: v.$text;
+  color: var(--muted);
   font-size: 12px;
 }
 
@@ -74,12 +74,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  color: rgba(v.$text, 0.85);
+  color: var(--text-soft);
   font-size: 13px;
-}
-
-.beds {
-  color: rgba(v.$text, 0.75);
 }
 
 .amenities {
@@ -93,12 +89,13 @@
   font-size: 12px;
   padding: 6px 8px;
   border-radius: 999px;
-  border: 1px solid v.$border;
-  background: rgba(#000, 0.12);
+  border: 1px solid var(--border);
+  background: var(--tag-bg);
+  color: var(--text-soft);
 }
 
 .more {
   font-size: 12px;
-  color: v.$muted;
+  color: var(--muted);
   padding: 6px 2px;
 }

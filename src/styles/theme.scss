@@ -1,0 +1,92 @@
+:root {
+    color-scheme: dark;
+
+    --bg: #0b1220;
+    --bg-rgb: 11 18 32;
+
+    --surface: #0f1a2e;
+    --surface-rgb: 15 26 46;
+
+    --text: #eaf0ff;
+    --text-rgb: 234 240 255;
+
+    --primary: #4aa3ff;
+    --primary-rgb: 74 163 255;
+
+    --text-soft: rgba(234, 240, 255, 0.86);
+    --muted: rgba(234, 240, 255, 0.72);
+    --faint: rgba(234, 240, 255, 0.55);
+
+    --primary-hover: #2f8cf3;
+    --primary-glow: rgba(74, 163, 255, 0.25);
+
+    --border: rgba(234, 240, 255, 0.16);
+    --border-strong: rgba(234, 240, 255, 0.26);
+
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --card-bg-hover: rgba(255, 255, 255, 0.06);
+    --field-bg: rgba(255, 255, 255, 0.06);
+    --tag-bg: rgba(0, 0, 0, 0.12);
+
+    --backdrop: rgba(0, 0, 0, 0.62);
+
+    --modal-bg: rgba(var(--surface-rgb) / 0.96);
+    --menu-bg: rgba(var(--surface-rgb) / 0.98);
+
+    --shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+
+    --select-caret: rgba(234, 240, 255, 0.75);
+
+    --glass-06: rgba(255, 255, 255, 0.06);
+    --glass-02: rgba(255, 255, 255, 0.02);
+
+    --hero-overlay-top: rgba(11, 18, 32, 0.15);
+    --hero-overlay-bottom: rgba(11, 18, 32, 0.55);
+}
+
+
+:root[data-theme='light'] {
+    color-scheme: light;
+
+    --bg: #f4f6fb;
+    --bg-rgb: 244 246 251;
+
+    --surface: #ffffff;
+    --surface-rgb: 255 255 255;
+
+    --text: #0f172a;
+    --text-rgb: 15 23 42;
+
+    --primary: #2563eb;
+    --primary-rgb: 37 99 235;
+
+    --text-soft: rgba(15, 23, 42, 0.86);
+    --muted: rgba(15, 23, 42, 0.62);
+    --faint: rgba(15, 23, 42, 0.48);
+
+    --primary-hover: #1d4ed8;
+    --primary-glow: rgba(37, 99, 235, 0.16);
+
+    --border: rgba(15, 23, 42, 0.14);
+    --border-strong: rgba(15, 23, 42, 0.22);
+
+    --card-bg: rgba(15, 23, 42, 0.035);
+    --card-bg-hover: rgba(15, 23, 42, 0.055);
+    --field-bg: rgba(15, 23, 42, 0.05);
+    --tag-bg: rgba(15, 23, 42, 0.06);
+
+    --backdrop: rgba(2, 6, 23, 0.45);
+
+    --modal-bg: rgba(var(--surface-rgb) / 0.96);
+    --menu-bg: rgba(var(--surface-rgb) / 0.98);
+
+    --shadow: 0 12px 30px rgba(2, 6, 23, 0.10);
+
+    --select-caret: rgba(15, 23, 42, 0.55);
+
+    --glass-06: rgba(15, 23, 42, 0.05);
+    --glass-02: rgba(15, 23, 42, 0.02);
+
+    --hero-overlay-top: rgba(255, 255, 255, 0.62);
+    --hero-overlay-bottom: rgba(255, 255, 255, 0.86);
+}

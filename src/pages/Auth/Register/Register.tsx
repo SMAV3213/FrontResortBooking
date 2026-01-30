@@ -89,8 +89,10 @@ const Register: React.FC = () => {
               <button className={clsx('btn', 'btn-primary')} type="submit" disabled={loading}>
                 {loading ? 'Создаём…' : 'Создать аккаунт'}
               </button>
-              <Link className={clsx('btn', 'btn-ghost')} to="/login">
-                Уже есть аккаунт
+              <Link to="/login">
+                <button className={clsx('btn', 'btn-ghost')}>
+                  Уже есть аккаунт
+                </button>
               </Link>
             </div>
 

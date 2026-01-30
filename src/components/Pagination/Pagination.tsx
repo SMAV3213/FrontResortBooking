@@ -1,6 +1,6 @@
 import React from 'react'
 import clsx from 'clsx'
-
+import s from './Pagination.module.scss'
 type Props = {
     page: number
     pageSize: number
@@ -20,7 +20,7 @@ const Pagination: React.FC<Props> = ({ page, pageSize, total, onPageChange, clas
                 Назад
             </button>
 
-            <div style={{ color: 'rgba(234,240,255,0.75)', fontSize: 13 }}>
+            <div className={clsx(s.text)}>
                 Страница <b>{page}</b> из <b>{pages}</b> • всего <b>{total}</b>
             </div>
 
