@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../auth/AuthProvider'
 import s from '../Auth.module.scss'
+import { getApiErrorMessage } from '../../../api/getApiErrorMessage'
 
 const Register: React.FC = () => {
   const nav = useNavigate()
@@ -44,7 +45,7 @@ const Register: React.FC = () => {
       })
       nav('/', { replace: true })
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? err?.message ?? 'Ошибка регистрации')
+      setError(getApiErrorMessage(err))
     } finally {
       setLoading(false)
     }

@@ -91,7 +91,7 @@
   border-radius: 12px;
   border: 1px solid rgba(255, 120, 120, 0.35);
   background: rgba(255, 120, 120, 0.10);
-  color: rgba(255, 235, 235, 0.95);
+  color: var(--text);
   font-size: 13px;
   white-space: pre-line;
 }

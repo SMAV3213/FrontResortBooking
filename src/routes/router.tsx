@@ -3,7 +3,7 @@ import Layout from '../components/Layout/Layout'
 
 import Home from '../pages/Home/Home'
 import Types from '../pages/Types'
-import About from '../components/AboutUs/AboutUs'
+import About from '../pages/AboutUs/AboutUs'
 
 import Login from '../pages/Auth/Login/Login'
 import Register from '../pages/Auth/Register/Register'

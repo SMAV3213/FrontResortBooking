@@ -29,6 +29,7 @@ body {
   padding: 0 16px;
   border-radius: v.$radius-sm;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .btn:hover { border-color: var(--border-strong); }
