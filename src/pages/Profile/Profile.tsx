@@ -1,7 +1,7 @@
 import React from 'react'
 import clsx from 'clsx'
 
-import ConfirmModal from '../../components/ConfirmModal/ConfirmModal'
+import ConfirmModal from '../../modals/ConfirmModal/ConfirmModal'
 import Pagination from '../../components/Pagination/Pagination'
 
 import { useAuth } from '../../auth/AuthProvider'

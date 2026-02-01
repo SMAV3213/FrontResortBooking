@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import Hero from '../../components/Hero/Hero'
 import TypeList from '../../components/TypeList/TypeCardList'
 import TypeInfo from '../../components/TypeInfo/TypeInfo'
-import AuthRequiredModal from '../../components/AuthRequiredModal/AuthRequiredModal'
-import ConfirmModal from '../../components/ConfirmModal/ConfirmModal'
+import AuthRequiredModal from '../../modals/AuthRequiredModal/AuthRequiredModal'
+import ConfirmModal from '../../modals/ConfirmModal/ConfirmModal'
 
 import { roomTypesRequests, bookingRequests, tokenStorage } from '../../api'
 import { getApiErrorMessage } from '../../api/getApiErrorMessage'
@@ -16,7 +16,7 @@ import { decodeJwt, getUserIdFromJwt } from '../../auth/jwt'
 import { useAuth } from '../../auth/AuthProvider'
 import s from './home.module.scss'
 
-const toDateTime = (date: string) => `${date}T00:00:00`
+const toDateTime = (date: string) => `${date}T00:00:00Z`
 const toDate = (date: string) => new Date(toDateTime(date))
 type SearchParams = { guests: number; checkIn: string; checkOut: string }
 

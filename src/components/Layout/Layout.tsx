@@ -3,9 +3,15 @@ import clsx from 'clsx'
 import s from './layout.module.scss'
 import Header from '../Header/Header'
 import Footer from '../Footer/Footer'
-import { Outlet } from 'react-router-dom'
+import { resetBodyScrollLock } from '../../utils/bodyScrollLock'
+import { Outlet, useLocation } from 'react-router-dom'
 
 const Layout: React.FC = () => {
+    const loc = useLocation()
+
+    React.useEffect(() => {
+        resetBodyScrollLock()
+    }, [loc.pathname])
     return (
         <div className={clsx(s['br-layout'])}>
             <Header />

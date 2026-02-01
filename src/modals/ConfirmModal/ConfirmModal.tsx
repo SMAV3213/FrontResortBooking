@@ -2,6 +2,7 @@ import React from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import s from './confirmModal.module.scss'
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/bodyScrollLock'
 
 type Props = {
     open: boolean
@@ -61,26 +62,28 @@ const ConfirmModal: React.FC<Props> = ({
 
     React.useEffect(() => {
         if (!mounted || !isBrowser) return
-        const prevOverflow = document.body.style.overflow
-        document.body.style.overflow = 'hidden'
-        return () => {
-            document.body.style.overflow = prevOverflow
-        }
+        lockBodyScroll()
+        return () => unlockBodyScroll()
     }, [mounted, isBrowser])
 
     React.useEffect(() => {
         if (!open) return
         const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose()
+            if (e.key === 'Escape' && !loading) onClose()
         }
         document.addEventListener('keydown', onKeyDown)
         return () => document.removeEventListener('keydown', onKeyDown)
-    }, [open, onClose])
+    }, [open, onClose, loading])
 
     if (!isBrowser || !mounted) return null
 
+    const safeClose = () => {
+        if (loading) return
+        onClose()
+    }
+
     return createPortal(
-        <div className={s.overlay} data-state={anim} onClick={onClose} role="presentation">
+        <div className={s.overlay} data-state={anim} onClick={safeClose} role="presentation">
             <div
                 className={clsx(s.modal, variant === 'danger' && s.danger)}
                 onClick={(e) => e.stopPropagation()}
@@ -89,7 +92,7 @@ const ConfirmModal: React.FC<Props> = ({
             >
                 <div className={s.head}>
                     <div className={s.title}>{title}</div>
-                    <button className={clsx('btn', 'btn-ghost', s.close)} onClick={onClose} disabled={loading}>
+                    <button className={clsx('btn', 'btn-ghost', s.close)} onClick={safeClose} disabled={loading}>
                         Закрыть
                     </button>
                 </div>
@@ -97,15 +100,11 @@ const ConfirmModal: React.FC<Props> = ({
                 {text ? <div className={s.text}>{text}</div> : null}
 
                 <div className={s.actions}>
-                    <button className={clsx('btn', 'btn-ghost')} onClick={onClose} disabled={loading}>
+                    <button className={clsx('btn', 'btn-ghost')} onClick={safeClose} disabled={loading}>
                         {cancelText}
                     </button>
 
-                    <button
-                        className={clsx('btn', variant === 'danger' ? s.btnDanger : 'btn-primary')}
-                        onClick={onConfirm}
-                        disabled={loading}
-                    >
+                    <button className={clsx('btn', variant === 'danger' ? s.btnDanger : 'btn-primary')} onClick={onConfirm} disabled={loading}>
                         {loading ? 'Подождите…' : confirmText}
                     </button>
                 </div>

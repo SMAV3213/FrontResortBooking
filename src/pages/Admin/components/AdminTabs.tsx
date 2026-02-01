@@ -13,10 +13,10 @@ const AdminTabs: React.FC<Props> = ({ value, onChange }) => {
   return (
     <div className={s.tabs}>
       <button className={clsx('btn', value === 'roomTypes' ? 'btn-primary' : 'btn-ghost')} onClick={() => onChange('roomTypes')}>
-        Типы номеров
+        Комнаты
       </button>
       <button className={clsx('btn', value === 'rooms' ? 'btn-primary' : 'btn-ghost')} onClick={() => onChange('rooms')}>
-        Комнаты
+        Типы номеров
       </button>
       <button className={clsx('btn', value === 'bookings' ? 'btn-primary' : 'btn-ghost')} onClick={() => onChange('bookings')}>
         Брони

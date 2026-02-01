@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import { useLocation, useNavigate } from 'react-router-dom'
 import s from './authRequiredModal.module.scss'
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/bodyScrollLock'
 
 type Props = {
   open: boolean
@@ -12,6 +13,12 @@ type Props = {
 const AuthRequiredModal: React.FC<Props> = ({ open, onClose }) => {
   const nav = useNavigate()
   const loc = useLocation()
+
+  React.useEffect(() => {
+    if (!open) return
+    lockBodyScroll()
+    return () => unlockBodyScroll()
+  }, [open])
 
   React.useEffect(() => {
     if (!open) return

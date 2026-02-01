@@ -33,7 +33,6 @@ const EntitySearchSelect = <T,>({
     const [options, setOptions] = React.useState<SearchOption<T>[]>([])
     const [active, setActive] = React.useState(0)
 
-    // закрытие по клику вне
     React.useEffect(() => {
         if (!open) return
         const onDown = (e: MouseEvent) => {
@@ -44,7 +43,6 @@ const EntitySearchSelect = <T,>({
         return () => document.removeEventListener('mousedown', onDown)
     }, [open])
 
-    // загрузка опций по query (debounce)
     React.useEffect(() => {
         if (!open) return
         let alive = true

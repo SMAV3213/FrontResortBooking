@@ -279,10 +279,9 @@
   align-items: center;
 }
 
-/* compact controls only inside toolbar */
 .toolbarPanel :global(.input),
 .toolbarPanel :global(.select) {
-  height: 34px;
+  
   padding: 0 10px;
   font-size: 13px;
   border-radius: 10px;
@@ -426,10 +425,22 @@
   line-height: 1.35;
 }
 
-/* search selects block (users/rooms/types) */
 .searchContainer {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
   width: min(520px, 100%);
+}
+
+.textareaDescription{
+  width: 100%;
+  height: 140px;
+  padding: 0 14px;
+  border-radius: v.$radius-sm;
+  border: 1px solid var(--border);
+  background: var(--field-bg);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  resize: none;
 }

@@ -5,7 +5,7 @@ import AdminSection from '../AdminSection'
 import ChangeRoleModal from '../../../../modals/ChangeRoleModal'
 import Pagination from '../../../../components/Pagination/Pagination'
 import AdminListToolbar from '../AdminToolBar'
-import ConfirmModal from '../../../../components/ConfirmModal/ConfirmModal'
+import ConfirmModal from '../../../../modals/ConfirmModal/ConfirmModal'
 
 import { userRequests } from '../../../../api'
 import { getApiErrorMessage } from '../../../../api/getApiErrorMessage'

@@ -1,7 +1,8 @@
 import React from 'react'
 import clsx from 'clsx'
-import s from '../pages/Admin/admin.module.scss'
+import { lockBodyScroll, unlockBodyScroll } from '../utils/bodyScrollLock'
 import type { BookingDTO } from '../types/bookingDTOs'
+import s from '../pages/Admin/admin.module.scss'
 
 type Props = {
   open: boolean
@@ -27,14 +28,25 @@ const BookingEditModal: React.FC<Props> = ({ open, booking, onClose, onSave }) =
   const [error, setError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
+    if (!open) return
+    lockBodyScroll()
+    return () => unlockBodyScroll()
+  }, [open])
+
+  React.useEffect(() => {
     if (!open || !booking) return
     setError(null)
-    setCheckIn(toDateInput((booking as any).checkIn ?? (booking as any).checkInDate))
-    setCheckOut(toDateInput((booking as any).checkOut ?? (booking as any).checkOutDate))
-    setGuestsCount(Number((booking as any).guestsCount ?? 1))
+    setCheckIn(toDateInput(booking.checkIn))
+    setCheckOut(toDateInput(booking.checkOut))
+    setGuestsCount(Number(booking.guestsCount ?? 1))
   }, [open, booking])
 
   if (!open || !booking) return null
+
+  const safeClose = () => {
+    if (saving) return
+    onClose()
+  }
 
   const submit = async () => {
     setError(null)
@@ -44,7 +56,7 @@ const BookingEditModal: React.FC<Props> = ({ open, booking, onClose, onSave }) =
     try {
       setSaving(true)
       await onSave({ checkIn, checkOut, guestsCount })
-      onClose()
+      safeClose()
     } catch (e: any) {
       setError(e?.message ?? 'Ошибка сохранения')
     } finally {
@@ -53,11 +65,11 @@ const BookingEditModal: React.FC<Props> = ({ open, booking, onClose, onSave }) =
   }
 
   return (
-    <div className={s.modalOverlay} onClick={onClose} role="presentation">
+    <div className={s.modalOverlay} onClick={safeClose} role="presentation">
       <div className={s.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
         <div className={s.modalHead}>
           <div className={s.modalTitle}>Редактировать бронь</div>
-          <button className={clsx('btn', 'btn-ghost')} onClick={onClose}>Закрыть</button>
+          <button className={clsx('btn', 'btn-ghost')} onClick={safeClose} disabled={saving}>Закрыть</button>
         </div>
 
         <div className={s.form}>

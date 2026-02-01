@@ -5,7 +5,7 @@ import AdminSection from '../AdminSection'
 import RoomTypeModal from '../../../../modals/RoomTypeModal'
 import Pagination from '../../../../components/Pagination/Pagination'
 import AdminListToolbar from '../AdminToolBar'
-import ConfirmModal from '../../../../components/ConfirmModal/ConfirmModal'
+import ConfirmModal from '../../../../modals/ConfirmModal/ConfirmModal'
 
 import { roomTypesRequests } from '../../../../api'
 import { getApiErrorMessage } from '../../../../api/getApiErrorMessage'

@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import AdminSection from '../AdminSection'
 import Pagination from '../../../../components/Pagination/Pagination'
 import AdminListToolbar from '../AdminToolBar'
-import ConfirmModal from '../../../../components/ConfirmModal/ConfirmModal'
+import ConfirmModal from '../../../../modals/ConfirmModal/ConfirmModal'
 
 import { bookingRequests, userRequests, roomRequests, roomTypesRequests } from '../../../../api'
 import { getApiErrorMessage } from '../../../../api/getApiErrorMessage'
@@ -645,7 +645,7 @@ const BookingsTab: React.FC = () => {
         }}
         onSave={async (payload) => {
           await bookingRequests.update(editing!.id, {
-            checkIn: new Date(payload.checkIn + 'T00:00:00'),
+            checkIn: new Date(payload.checkIn + 'T00:00:00Z'),
             checkOut: new Date(payload.checkOut + 'T00:00:00'),
             guestsCount: payload.guestsCount,
           })

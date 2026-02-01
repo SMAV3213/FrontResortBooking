@@ -1,8 +1,9 @@
 import React from 'react'
 import clsx from 'clsx'
 import type { UserDTO, ERole } from '../types/userDTOs'
+import { roleRu } from '../shared/labels'
+import { lockBodyScroll, unlockBodyScroll } from '../utils/bodyScrollLock'
 import s from '../pages/Admin/admin.module.scss'
-import { roleRu } from '../shared/labels';
 
 type Props = {
   open: boolean
@@ -20,6 +21,12 @@ const ChangeRoleModal: React.FC<Props> = ({ open, user, onClose, onSave }) => {
   const [role, setRole] = React.useState<ERole>(0 as ERole)
 
   React.useEffect(() => {
+    if (!open) return
+    lockBodyScroll()
+    return () => unlockBodyScroll()
+  }, [open])
+
+  React.useEffect(() => {
     if (!open || !user) return
     setRole(user.role)
   }, [open, user])
@@ -31,9 +38,7 @@ const ChangeRoleModal: React.FC<Props> = ({ open, user, onClose, onSave }) => {
       <div className={s.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
         <div className={s.modalHead}>
           <div className={s.modalTitle}>Изменить роль</div>
-          <button className={clsx('btn', 'btn-ghost')} onClick={onClose}>
-            Закрыть
-          </button>
+          <button className={clsx('btn', 'btn-ghost')} onClick={onClose}>Закрыть</button>
         </div>
 
         <div className={s.form}>
@@ -45,9 +50,7 @@ const ChangeRoleModal: React.FC<Props> = ({ open, user, onClose, onSave }) => {
             Новая роль
             <select className="select" value={String(role)} onChange={(e) => setRole(Number(e.target.value) as ERole)}>
               {ROLE_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
+                <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
           </label>

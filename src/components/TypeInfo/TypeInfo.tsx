@@ -4,6 +4,8 @@ import clsx from 'clsx'
 import type { RoomTypeWithoutRoomsDTO } from '../../types/roomTypeDTOs'
 import s from './typeInfo.module.scss'
 import { API_BASE } from '../../api/api'
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/bodyScrollLock'
+
 type Props = {
     open: boolean
     item: RoomTypeWithoutRoomsDTO | null
@@ -23,7 +25,7 @@ const priceFmt = new Intl.NumberFormat('ru-RU', {
 type AnimState = 'closed' | 'opening' | 'open' | 'closing'
 const ANIM_MS = 320
 
-const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions , bookingDisabled , onBook }) => {
+const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions, bookingDisabled, onBook }) => {
     const isBrowser = typeof document !== 'undefined'
 
     const [activeIdx, setActiveIdx] = React.useState(0)
@@ -83,11 +85,8 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
 
     React.useEffect(() => {
         if (!mounted || !isBrowser) return
-        const prevOverflow = document.body.style.overflow
-        document.body.style.overflow = 'hidden'
-        return () => {
-            document.body.style.overflow = prevOverflow
-        }
+        lockBodyScroll()
+        return () => unlockBodyScroll()
     }, [mounted, isBrowser])
 
     if (!isBrowser || !mounted || !item) return null

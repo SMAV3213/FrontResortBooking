@@ -2,6 +2,7 @@ import React from 'react'
 import clsx from 'clsx'
 import { roomRequests } from '../api'
 import { getApiErrorMessage } from '../api/getApiErrorMessage'
+import { lockBodyScroll, unlockBodyScroll } from '../utils/bodyScrollLock'
 import type { RoomDTO, CreateRoomDTO, UpdateRoomDTO, ERoomStatus } from '../types/roomDTOs'
 import type { RoomTypeWithoutRoomsDTO } from '../types/roomTypeDTOs'
 import s from '../pages/Admin/admin.module.scss'
@@ -22,6 +23,12 @@ const RoomModal: React.FC<Props> = ({ open, initial, roomTypes, onClose, onSaved
 
   React.useEffect(() => {
     if (!open) return
+    lockBodyScroll()
+    return () => unlockBodyScroll()
+  }, [open])
+
+  React.useEffect(() => {
+    if (!open) return
     setNumber(initial?.number ?? '')
     setStatus(initial?.status ?? (0 as ERoomStatus))
     setRoomTypeId(initial?.roomType?.id ?? roomTypes[0]?.id ?? '')
@@ -29,12 +36,18 @@ const RoomModal: React.FC<Props> = ({ open, initial, roomTypes, onClose, onSaved
 
   if (!open) return null
 
+  const safeClose = () => {
+    if (saving) return
+    onClose()
+  }
+
   const save = async () => {
     if (!number.trim()) return alert('Введите номер комнаты')
     if (!roomTypeId) return alert('Выберите тип комнаты')
 
     try {
       setSaving(true)
+
       if (!initial) {
         const dto: CreateRoomDTO = { number: number.trim(), roomTypeId }
         await roomRequests.create(dto)
@@ -43,7 +56,7 @@ const RoomModal: React.FC<Props> = ({ open, initial, roomTypes, onClose, onSaved
         await roomRequests.update(initial.id, dto)
       }
 
-      onClose()
+      safeClose()
       await onSaved()
     } catch (e) {
       alert(getApiErrorMessage(e))
@@ -53,11 +66,11 @@ const RoomModal: React.FC<Props> = ({ open, initial, roomTypes, onClose, onSaved
   }
 
   return (
-    <div className={s.modalOverlay} onClick={onClose} role="presentation">
+    <div className={s.modalOverlay} onClick={safeClose} role="presentation">
       <div className={s.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
         <div className={s.modalHead}>
           <div className={s.modalTitle}>{initial ? 'Редактировать комнату' : 'Новая комната'}</div>
-          <button className={clsx('btn', 'btn-ghost')} onClick={onClose}>Закрыть</button>
+          <button className={clsx('btn', 'btn-ghost')} onClick={safeClose} disabled={saving}>Закрыть</button>
         </div>
 
         <div className={s.form}>

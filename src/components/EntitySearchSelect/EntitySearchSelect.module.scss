@@ -1,72 +1,65 @@
-@use '../../styles/variables' as v;
+.root {
+    position: relative;
+    min-width: 220px;
+}
 
-.br-header {
-    position: sticky;
-    top: 0;
+.inputWrap {
+    position: relative;
+}
+
+.input {
+    padding-right: 38px;
+}
+
+.clear {
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 28px;
+}
+
+.menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
     z-index: 50;
 
-    border-bottom: 1px solid var(--border);
-    background: rgba(0, 0, 0, 0.0);
-    background: color-mix(in srgb, var(--surface) 70%, transparent);
-
+    border: 1px solid var(--border);
+    background: var(--menu-bg);
     backdrop-filter: blur(10px);
-    border-radius: var(--radius);
-}
 
-.br-header-inner {
-    height: 68px;
+    border-radius: 12px;
+    overflow: auto;
+    max-height: 260px;
+
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.30);
+
     display: flex;
-    align-items: center;
-    gap: 18px;
+    flex-direction: column;
 }
 
-.br-logo {
-    font-weight: 800;
-    letter-spacing: 0.3px;
-    text-decoration: none;
-    font-size: 28px;
+.option {
+    display: flex;
+    width: 100%;
+
+    text-align: left;
+    padding: 10px 10px;
+    border: 0;
+    background: transparent;
     color: var(--text);
+    cursor: pointer;
+    font-size: 13px;
 }
 
-.br-nav {
-    display: flex;
-    gap: 14px;
-    margin-left: 14px;
-    flex: 1;
-
-    a {
-        padding: 8px 10px;
-        border-radius: 10px;
-        color: var(--text-soft);
-        text-decoration: none;
-        border: 1px solid transparent;
-        transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-    }
-
-    a:hover {
-        background: var(--card-bg);
-        border-color: var(--border);
-        color: var(--text);
-        text-decoration: none;
-    }
+.option:hover,
+.optionActive {
+    background: var(--card-bg);
 }
 
-.br-user {
-    color: var(--text-soft);
-    font-size: 16px;
-    font-weight: 700;
-    white-space: nowrap;
-    margin: auto;
-    margin-right: 10px;
-}
-
-.br-auth {
-    display: flex;
-    gap: 10px;
-}
-
-@media (max-width: 860px) {
-    .br-nav {
-        display: none;
-    }
+.meta {
+    padding: 10px 10px;
+    color: var(--muted);
+    font-size: 13px;
 }

@@ -1,15 +1,12 @@
 import React from 'react'
 import clsx from 'clsx'
 
+import { lockBodyScroll, unlockBodyScroll } from '../utils/bodyScrollLock'
 import { roomTypesRequests } from '../api'
 import { getApiErrorMessage } from '../api/getApiErrorMessage'
 import { API_BASE } from '../api/api'
 import { GUEST_OPTIONS } from '../shared/countArray'
-import type {
-    RoomTypeWithoutRoomsDTO,
-    CreateRoomTypeDTO,
-    UpdateRoomTypeDTO,
-} from '../types/roomTypeDTOs'
+import type { RoomTypeWithoutRoomsDTO, CreateRoomTypeDTO, UpdateRoomTypeDTO } from '../types/roomTypeDTOs'
 import s from '../pages/Admin/admin.module.scss'
 
 type Props = {
@@ -34,6 +31,12 @@ const RoomTypeModal: React.FC<Props> = ({ open, initial, onClose, onSaved }) => 
 
     React.useEffect(() => {
         if (!open) return
+        lockBodyScroll()
+        return () => unlockBodyScroll()
+    }, [open])
+
+    React.useEffect(() => {
+        if (!open) return
         setName(initial?.name ?? '')
         setDesc(initial?.description ?? '')
         setCapacity(initial?.capacity ?? 2)
@@ -43,6 +46,7 @@ const RoomTypeModal: React.FC<Props> = ({ open, initial, onClose, onSaved }) => 
     }, [open, initial])
 
     React.useEffect(() => {
+        // cleanup old urls
         previews.forEach((p) => URL.revokeObjectURL(p.url))
 
         const next: LocalPreview[] = images.map((file) => ({
@@ -56,6 +60,7 @@ const RoomTypeModal: React.FC<Props> = ({ open, initial, onClose, onSaved }) => 
         return () => {
             next.forEach((p) => URL.revokeObjectURL(p.url))
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [images])
 
     if (!open) return null
@@ -63,15 +68,11 @@ const RoomTypeModal: React.FC<Props> = ({ open, initial, onClose, onSaved }) => 
     const onPickFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files ?? [])
         setImages(files)
-
         e.target.value = ''
     }
 
     const removePicked = (id: string) => {
-        setImages((prev) => {
-            const next = prev.filter((f) => `${f.name}_${f.size}_${f.lastModified}` !== id)
-            return next
-        })
+        setImages((prev) => prev.filter((f) => `${f.name}_${f.size}_${f.lastModified}` !== id))
     }
 
     const save = async () => {
@@ -83,20 +84,10 @@ const RoomTypeModal: React.FC<Props> = ({ open, initial, onClose, onSaved }) => 
             setSaving(true)
 
             if (!initial) {
-                const dto: CreateRoomTypeDTO = {
-                    name: name.trim(),
-                    description: desc.trim(),
-                    capacity,
-                    pricePerNight: price,
-                }
+                const dto: CreateRoomTypeDTO = { name: name.trim(), description: desc.trim(), capacity, pricePerNight: price }
                 await roomTypesRequests.create(dto, images)
             } else {
-                const dto: UpdateRoomTypeDTO = {
-                    name: name.trim(),
-                    description: desc.trim(),
-                    capacity,
-                    pricePerNight: price,
-                }
+                const dto: UpdateRoomTypeDTO = { name: name.trim(), description: desc.trim(), capacity, pricePerNight: price }
                 await roomTypesRequests.update(initial.id, dto, images)
             }
 
@@ -109,12 +100,17 @@ const RoomTypeModal: React.FC<Props> = ({ open, initial, onClose, onSaved }) => 
         }
     }
 
+    const safeClose = () => {
+        if (saving) return
+        onClose()
+    }
+
     return (
-        <div className={s.modalOverlay} onClick={onClose} role="presentation">
+        <div className={s.modalOverlay} onClick={safeClose} role="presentation">
             <div className={s.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
                 <div className={s.modalHead}>
                     <div className={s.modalTitle}>{initial ? 'Редактировать тип' : 'Новый тип'}</div>
-                    <button className={clsx('btn', 'btn-ghost')} onClick={onClose}>
+                    <button className={clsx('btn', 'btn-ghost')} onClick={safeClose} disabled={saving}>
                         Закрыть
                     </button>
                 </div>
@@ -133,28 +129,16 @@ const RoomTypeModal: React.FC<Props> = ({ open, initial, onClose, onSaved }) => 
                     <div className={s.row2}>
                         <label className={s.label}>
                             Вместимость
-                            <select
-                                className="select"
-                                value={capacity}
-                                onChange={(e) => setCapacity(Number(e.target.value))}
-                            >
+                            <select className="select" value={capacity} onChange={(e) => setCapacity(Number(e.target.value))}>
                                 {GUEST_OPTIONS.map((n) => (
-                                    <option key={n} value={n}>
-                                        {n}
-                                    </option>
+                                    <option key={n} value={n}>{n}</option>
                                 ))}
                             </select>
                         </label>
 
                         <label className={s.label}>
                             Цена за ночь
-                            <input
-                                className="input"
-                                type="number"
-                                min={0}
-                                value={price}
-                                onChange={(e) => setPrice(Number(e.target.value))}
-                            />
+                            <input className="input" type="number" min={0} value={price} onChange={(e) => setPrice(Number(e.target.value))} />
                         </label>
                     </div>
 
@@ -163,22 +147,12 @@ const RoomTypeModal: React.FC<Props> = ({ open, initial, onClose, onSaved }) => 
                             <div className={s.previewTitle}>Текущие фото</div>
                             <div className={s.previewGrid}>
                                 {initial.imageUrls.map((u) => (
-                                    <a
-                                        key={u}
-                                        className={s.previewItem}
-                                        href={API_BASE + u}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        title="Открыть"
-                                    >
+                                    <a key={u} className={s.previewItem} href={API_BASE + u} target="_blank" rel="noreferrer">
                                         <img className={s.previewImg} src={API_BASE + u} alt="" />
                                     </a>
                                 ))}
                             </div>
-
-                            <div className={s.previewNote}>
-                                Если загрузить новые фотографии, старые будут заменены.
-                            </div>
+                            <div className={s.previewNote}>Если загрузить новые фотографии, старые будут заменены.</div>
                         </div>
                     ) : null}
 
@@ -194,12 +168,7 @@ const RoomTypeModal: React.FC<Props> = ({ open, initial, onClose, onSaved }) => 
                                 {previews.map((p) => (
                                     <div key={p.id} className={s.previewItem}>
                                         <img className={s.previewImg} src={p.url} alt={p.file.name} />
-                                        <button
-                                            type="button"
-                                            className={clsx('btn', 'btn-ghost', s.previewRemove)}
-                                            onClick={() => removePicked(p.id)}
-                                            aria-label="Убрать фото"
-                                        >
+                                        <button type="button" className={clsx('btn', 'btn-ghost', s.previewRemove)} onClick={() => removePicked(p.id)}>
                                             Убрать
                                         </button>
                                     </div>
