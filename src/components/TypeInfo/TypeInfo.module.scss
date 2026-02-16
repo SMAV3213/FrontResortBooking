@@ -12,7 +12,8 @@
     background:
         radial-gradient(900px 600px at 20% 10%, var(--primary-glow), transparent 60%),
         var(--backdrop);
-
+    background-size: cover;
+    background-repeat: no-repeat;
     opacity: 0;
     pointer-events: none;
     transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1);

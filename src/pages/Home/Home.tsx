@@ -15,6 +15,7 @@ import type { RoomTypeWithoutRoomsDTO } from '../../types/roomTypeDTOs'
 import { decodeJwt, getUserIdFromJwt } from '../../auth/jwt'
 import { useAuth } from '../../auth/AuthProvider'
 import s from './home.module.scss'
+import About from '../AboutUs/AboutUs'
 
 const toDateTime = (date: string) => `${date}T00:00:00Z`
 const toDate = (date: string) => new Date(toDateTime(date))
@@ -37,7 +38,6 @@ const Home: React.FC = () => {
   const [bookingLoading, setBookingLoading] = React.useState(false)
   const [authModalOpen, setAuthModalOpen] = React.useState(false)
 
-  // confirm booking modal
   const [confirmOpen, setConfirmOpen] = React.useState(false)
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const [pendingRoomType, setPendingRoomType] = React.useState<RoomTypeWithoutRoomsDTO | null>(null)
@@ -172,8 +172,19 @@ const Home: React.FC = () => {
                   setOpen(true)
                 }}
                 columnsMinWidth={320}
-                Name="Свободные номера"
+                Name="Доступные номера"
               />
+            </div>
+          </div>
+        </div>
+
+        <div className={clsx(s['br-list'])}>
+          <div className={clsx(s['br-list-overlay'])}>
+
+            <div className={s.revealBody}>
+              <div>
+                <About />
+              </div>
             </div>
           </div>
         </div>

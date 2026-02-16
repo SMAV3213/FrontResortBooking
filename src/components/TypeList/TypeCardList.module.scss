@@ -10,7 +10,8 @@
     background:
         radial-gradient(900px 420px at 20% 10%, var(--primary-glow), transparent 60%),
         linear-gradient(135deg, var(--glass-06), var(--glass-02));
-
+    background-size: cover;
+    background-repeat: no-repeat;
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
     margin-top: 8px;
@@ -20,6 +21,8 @@
     width: 100%;
     padding: 32px 0;
     background: linear-gradient(180deg, var(--hero-overlay-top), var(--hero-overlay-bottom));
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .grid {
@@ -37,7 +40,7 @@
     display: flex;
     gap: 16px;
     align-items: stretch;
-    border-radius: v.$radius;
+
     overflow: hidden;
     max-width: 1180px;
     margin-inline: auto;

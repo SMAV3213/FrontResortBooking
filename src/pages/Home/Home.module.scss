@@ -1,3 +1,5 @@
+@use '../../styles/variables' as v;
+
 .reveal {
   display: grid;
   grid-template-rows: 0fr;
@@ -22,6 +24,32 @@
 .revealBody {
   overflow: hidden;
   min-height: 0;
+}
+
+.br-list-overlay {
+  width: 100%;
+  padding: 32px 0;
+  background: linear-gradient(180deg, var(--hero-overlay-top), var(--hero-overlay-bottom));
+  background-size: cover;
+  background-repeat: no-repeat; 
+}
+
+.br-list {
+  border-radius: v.$radius;
+  overflow: hidden;
+
+  min-height: 320px;
+  display: flex;
+
+  background:
+    radial-gradient(900px 420px at 20% 10%, var(--primary-glow), transparent 60%),
+    linear-gradient(135deg, var(--glass-06), var(--glass-02));
+  background-size: cover;
+  background-repeat: no-repeat; 
+  
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  margin-top: 8px;
 }
 
 @media (prefers-reduced-motion: reduce) {
