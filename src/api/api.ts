@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { tokenStorage } from './tokenStorage'
-import type { AuthResponseDTO, RefreshTokenDTO } from '../types/authDTOs' // поправь путь
+import type { AuthResponseDTO, RefreshTokenDTO } from '../types/authDTOs' 
 export const API_BASE = 'https://localhost:7153'
 export const API_URL = 'https://localhost:7153/api'
 
