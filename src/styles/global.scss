@@ -1,5 +1,6 @@
 @use './variables' as v;
 @use './theme';
+@use './responsive';
 
 *,
 *::before,
@@ -14,11 +15,24 @@ body {
   background:
     radial-gradient(1200px 700px at 30% -20%, var(--primary-glow), transparent 60%),
     var(--bg);
+  background-size: 100% 100%, auto;
+  background-repeat: no-repeat, repeat;
+  background-attachment: fixed, scroll;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .br-container {
-  width: min(100% - 32px, v.$container);
+  width: min(100% - 16px, v.$container);
   margin-inline: auto;
+  padding: 0 8px;
+}
+
+@media (min-width: v.$bp-md) {
+  .br-container {
+    width: min(100% - 32px, v.$container);
+    padding: 0 16px;
+  }
 }
 
 .btn {
@@ -30,9 +44,26 @@ body {
   border-radius: v.$radius-sm;
   cursor: pointer;
   font-size: 14px;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.1s ease;
+  touch-action: manipulation;
 }
 
-.btn:hover { border-color: var(--border-strong); }
+.btn:hover { 
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+@media (max-width: v.$bp-sm) {
+  .btn {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+}
 
 .btn-primary {
   background: var(--primary);
@@ -57,6 +88,14 @@ body {
   color: var(--text);
   font-size: 14px;
   outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-size: 16px; /* Предотвращает зум на iOS */
+}
+
+@media (max-width: v.$bp-sm) {
+  .input, .select, .textarea {
+    font-size: 16px;
+  }
 }
 
 .input::placeholder,

@@ -10,11 +10,26 @@
     background:
         radial-gradient(900px 420px at 20% 10%, var(--primary-glow), transparent 60%),
         linear-gradient(135deg, var(--glass-06), var(--glass-02));
-    background-size: cover;
+    background-size: 100% 100%, 100% 100%;
     background-repeat: no-repeat;
+    background-attachment: fixed;
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
     margin-top: 8px;
+}
+
+@media (max-width: v.$bp-md) {
+    .br-list {
+        min-height: 280px;
+        border-radius: 12px;
+    }
+}
+
+@media (max-width: v.$bp-sm) {
+    .br-list {
+        min-height: 240px;
+        border-radius: 10px;
+    }
 }
 
 .br-list-overlay {
@@ -23,6 +38,18 @@
     background: linear-gradient(180deg, var(--hero-overlay-top), var(--hero-overlay-bottom));
     background-size: cover;
     background-repeat: no-repeat;
+}
+
+@media (max-width: v.$bp-md) {
+    .br-list-overlay {
+        padding: 24px 0;
+    }
+}
+
+@media (max-width: v.$bp-sm) {
+    .br-list-overlay {
+        padding: 16px 0;
+    }
 }
 
 .grid {
@@ -34,6 +61,37 @@
     max-width: 1180px;
     min-height: 320px;
     margin-top: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+@media (max-width: v.$bp-lg) {
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 14px;
+    }
+}
+
+@media (max-width: v.$bp-md) {
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: v.$bp-sm) {
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
 }
 
 .div-name {
@@ -44,6 +102,19 @@
     overflow: hidden;
     max-width: 1180px;
     margin-inline: auto;
+    flex-direction: column;
+}
+
+@media (max-width: v.$bp-md) {
+    .div-name {
+        gap: 12px;
+    }
+}
+
+@media (max-width: v.$bp-sm) {
+    .div-name {
+        gap: 10px;
+    }
 }
 
 .name-text {
@@ -52,6 +123,25 @@
     text-decoration: none;
     font-size: 32px;
     color: var(--text);
+    line-height: 1.2;
+}
+
+@media (max-width: v.$bp-lg) {
+    .name-text {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: v.$bp-md) {
+    .name-text {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: v.$bp-sm) {
+    .name-text {
+        font-size: 18px;
+    }
 }
 
 .cell {
@@ -64,4 +154,13 @@
     border-radius: 12px;
     background: var(--card-bg);
     color: var(--muted);
+    text-align: center;
+    font-size: 14px;
+}
+
+@media (max-width: v.$bp-sm) {
+    .empty {
+        padding: 12px;
+        font-size: 13px;
+    }
 }

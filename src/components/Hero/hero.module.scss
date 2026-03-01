@@ -6,13 +6,27 @@
 
     min-height: 360px;
     display: flex;
-    background-size: cover;
-    background-repeat: no-repeat;
     background:
         radial-gradient(900px 360px at 20% 10%, var(--primary-glow), transparent 60%),
         linear-gradient(135deg, var(--glass-06), var(--glass-02));
+    background-size: 100% 100%, 100% 100%;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
+}
+
+@media (max-width: v.$bp-md) {
+    .br-hero {
+        min-height: 300px;
+    }
+}
+
+@media (max-width: v.$bp-sm) {
+    .br-hero {
+        min-height: 240px;
+        border-radius: 10px;
+    }
 }
 
 .br-hero-overlay {
@@ -25,10 +39,28 @@
     background-repeat: no-repeat;
 }
 
+@media (max-width: v.$bp-md) {
+    .br-hero-overlay {
+        padding: 48px 0;
+    }
+}
+
+@media (max-width: v.$bp-sm) {
+    .br-hero-overlay {
+        padding: 32px 0;
+    }
+}
+
 .br-hero-inner {
     display: flex;
     flex-direction: column;
     gap: 14px;
+}
+
+@media (max-width: v.$bp-sm) {
+    .br-hero-inner {
+        gap: 10px;
+    }
 }
 
 .br-hero-title {
@@ -39,10 +71,42 @@
     color: var(--text);
 }
 
+@media (max-width: v.$bp-lg) {
+    .br-hero-title {
+        font-size: 44px;
+    }
+}
+
+@media (max-width: v.$bp-md) {
+    .br-hero-title {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: v.$bp-sm) {
+    .br-hero-title {
+        font-size: 28px;
+        line-height: 1.1;
+    }
+}
+
 .br-hero-sub {
     margin: 0;
     color: var(--muted);
     font-size: 16px;
+    line-height: 1.4;
+}
+
+@media (max-width: v.$bp-md) {
+    .br-hero-sub {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: v.$bp-sm) {
+    .br-hero-sub {
+        font-size: 13px;
+    }
 }
 
 .br-search {
@@ -59,6 +123,30 @@
     backdrop-filter: blur(10px);
 }
 
+@media (max-width: v.$bp-lg) {
+    .br-search {
+        grid-template-columns: 100px 1fr 1fr 120px;
+        gap: 8px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: v.$bp-md) {
+    .br-search {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: v.$bp-sm) {
+    .br-search {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 10px;
+    }
+}
+
 .searchError {
     grid-column: 1 / -1;
     margin-top: 10px;
@@ -69,14 +157,4 @@
     color: var(--text);
     font-size: 13px;
     line-height: 1.45;
-}
-
-@media (max-width: 760px) {
-    .br-hero-title {
-        font-size: 38px;
-    }
-
-    .br-search {
-        grid-template-columns: 1fr;
-    }
 }

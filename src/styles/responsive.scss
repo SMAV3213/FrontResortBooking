@@ -1,0 +1,180 @@
+@use './variables' as v;
+
+/* 
+ * Утилиты для адаптивного дизайна
+ * Используйте эти классы для быстрого адаптива
+ */
+
+/* Скрыть элементы на мобильных */
+.hide-mobile {
+  @media (max-width: v.$bp-md) {
+    display: none !important;
+  }
+}
+
+/* Показать только на мобильных */
+.show-mobile {
+  display: none !important;
+  
+  @media (max-width: v.$bp-md) {
+    display: block !important;
+  }
+}
+
+/* Стек на мобильных */
+.stack-mobile {
+  @media (max-width: v.$bp-sm) {
+    flex-direction: column;
+    width: 100%;
+  }
+}
+
+/* Полная ширина на мобильных */
+.full-width-mobile {
+  @media (max-width: v.$bp-sm) {
+    width: 100%;
+  }
+}
+
+/* Уменьшить padding на мобильных */
+.padding-reduced {
+  @media (max-width: v.$bp-md) {
+    padding: calc(var(--padding) * 0.75) !important;
+  }
+  
+  @media (max-width: v.$bp-sm) {
+    padding: calc(var(--padding) * 0.5) !important;
+  }
+}
+
+/* Увеличить размер touch-target (минимум 44px) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  
+  @media (max-width: v.$bp-sm) {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* Шрифт для лучшей читаемости на мобильных */
+.mobile-readable {
+  @media (max-width: v.$bp-sm) {
+    font-size: 16px; /* Предотвращает зум на iOS */
+    line-height: 1.5;
+  }
+}
+
+/* Flexbox утилиты */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (max-width: v.$bp-sm) {
+  .flex-between {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+/* Grid утилиты */
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: v.$bp-md) {
+  .grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+  }
+}
+
+/* Контейнер с максимальной шириной */
+.container-max {
+  width: min(100% - 16px, 1200px);
+  margin-inline: auto;
+  
+  @media (max-width: v.$bp-md) {
+    width: min(100% - 12px, 1000px);
+  }
+  
+  @media (max-width: v.$bp-sm) {
+    width: min(100% - 8px, 100%);
+  }
+}
+
+/* Текст с переносом слов */
+.word-break {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Скрытие избытка текста с многоточием */
+.line-clamp-1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Улучшить touch-события */
+.touch-friendly {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+/* Безопасная область для notch устройств */
+.safe-area-inset {
+  padding-top: max(8px, env(safe-area-inset-top));
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  padding-left: max(8px, env(safe-area-inset-left));
+  padding-right: max(8px, env(safe-area-inset-right));
+}
+
+/* Градиент для лучшей видимости на мобильных */
+.gradient-overlay {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), transparent);
+}
+
+/* Отзывчивые изображения */
+.img-responsive {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}

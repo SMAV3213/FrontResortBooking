@@ -44,8 +44,9 @@
   background:
     radial-gradient(900px 420px at 20% 10%, var(--primary-glow), transparent 60%),
     linear-gradient(135deg, var(--glass-06), var(--glass-02));
-  background-size: cover;
-  background-repeat: no-repeat; 
+  background-size: 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   
   border: 1px solid var(--border);
   box-shadow: var(--shadow);

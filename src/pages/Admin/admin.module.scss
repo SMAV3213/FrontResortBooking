@@ -4,10 +4,28 @@
   padding: 24px 0 48px;
 }
 
+@media (max-width: v.$bp-md) {
+  .page {
+    padding: 16px 0 32px;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .page {
+    padding: 12px 0 24px;
+  }
+}
+
 .head {
   display: grid;
   gap: 12px;
   margin-bottom: 14px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .head {
+    gap: 10px;
+  }
 }
 
 .h1 {
@@ -17,10 +35,31 @@
   color: var(--text);
 }
 
+@media (max-width: v.$bp-md) {
+  .h1 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .h1 {
+    font-size: 16px;
+  }
+}
+
 .tabs {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .tabs {
+    gap: 6px;
+  }
 }
 
 .body {
@@ -28,9 +67,21 @@
   gap: 14px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .body {
+    gap: 10px;
+  }
+}
+
 .section {
   display: grid;
   gap: 12px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .section {
+    gap: 10px;
+  }
 }
 
 .sectionHead {
@@ -41,11 +92,23 @@
   flex-wrap: wrap;
 }
 
+@media (max-width: v.$bp-sm) {
+  .sectionHead {
+    gap: 8px;
+  }
+}
+
 .h2 {
   margin: 0;
   font-size: 16px;
   font-weight: 900;
   color: var(--text);
+}
+
+@media (max-width: v.$bp-sm) {
+  .h2 {
+    font-size: 14px;
+  }
 }
 
 .sectionActions {
@@ -54,9 +117,27 @@
   flex-wrap: wrap;
 }
 
+@media (max-width: v.$bp-sm) {
+  .sectionActions {
+    gap: 6px;
+    width: 100%;
+    flex-direction: column;
+
+    :global(button) {
+      width: 100%;
+    }
+  }
+}
+
 .list {
   display: grid;
   gap: 12px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .list {
+    gap: 10px;
+  }
 }
 
 .rowCard {
@@ -74,6 +155,14 @@
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
+@media (max-width: v.$bp-sm) {
+  .rowCard {
+    border-radius: 12px;
+    padding: 10px;
+    gap: 8px;
+  }
+}
+
 .rowCard:hover {
   background: var(--card-bg-hover);
   border-color: var(--border-strong);
@@ -83,9 +172,28 @@
   min-width: 260px;
 }
 
+@media (max-width: v.$bp-md) {
+  .rowMain {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .rowMain {
+    min-width: 140px;
+  }
+}
+
 .rowTitle {
   font-weight: 900;
   color: var(--text);
+  font-size: 14px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .rowTitle {
+    font-size: 13px;
+  }
 }
 
 .rowSub {
@@ -94,6 +202,13 @@
   font-size: 13px;
   line-height: 1.4;
   word-break: break-word;
+}
+
+@media (max-width: v.$bp-sm) {
+  .rowSub {
+    font-size: 12px;
+    margin-top: 4px;
+  }
 }
 
 .rowActions {

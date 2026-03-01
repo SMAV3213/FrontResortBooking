@@ -10,3 +10,15 @@
   flex: 1;
   padding: 14px 0 14px;
 }
+
+@media (max-width: v.$bp-md) {
+  .br-main {
+    padding: 10px 0 10px;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .br-main {
+    padding: 8px 0 8px;
+  }
+}

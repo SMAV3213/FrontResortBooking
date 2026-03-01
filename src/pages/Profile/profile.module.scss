@@ -4,6 +4,18 @@
   padding: 24px 0 48px;
 }
 
+@media (max-width: v.$bp-md) {
+  .page {
+    padding: 16px 0 32px;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .page {
+    padding: 12px 0 24px;
+  }
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1fr 1.35fr;
@@ -11,9 +23,16 @@
   align-items: start;
 }
 
-@media (max-width: 980px) {
+@media (max-width: v.$bp-lg) {
   .grid {
     grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .grid {
+    gap: 12px;
   }
 }
 
@@ -24,12 +43,26 @@
   padding: 16px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .card {
+    border-radius: 12px;
+    padding: 12px;
+  }
+}
+
 .cardHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: v.$bp-sm) {
+  .cardHead {
+    gap: 8px;
+  }
 }
 
 .h1 {
@@ -39,11 +72,29 @@
   color: var(--text);
 }
 
+@media (max-width: v.$bp-md) {
+  .h1 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .h1 {
+    font-size: 16px;
+  }
+}
+
 .h2 {
   margin: 0;
   font-size: 16px;
   font-weight: 900;
   color: var(--text);
+}
+
+@media (max-width: v.$bp-sm) {
+  .h2 {
+    font-size: 14px;
+  }
 }
 
 .profileMeta {
@@ -52,24 +103,58 @@
   margin-bottom: 12px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .profileMeta {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+}
+
 .metaRow {
   display: flex;
   justify-content: space-between;
   gap: 10px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .metaRow {
+    gap: 8px;
+  }
+}
+
 .metaKey {
   color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .metaKey {
+    font-size: 12px;
+  }
 }
 
 .metaVal {
   font-weight: 800;
   color: var(--text);
+  font-size: 13px;
+  word-break: break-all;
+}
+
+@media (max-width: v.$bp-sm) {
+  .metaVal {
+    font-size: 12px;
+  }
 }
 
 .form {
   display: grid;
   gap: 10px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .form {
+    gap: 8px;
+  }
 }
 
 .label {
@@ -79,11 +164,24 @@
   color: var(--text-soft);
 }
 
+@media (max-width: v.$bp-sm) {
+  .label {
+    font-size: 12px;
+  }
+}
+
 .actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 6px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .actions {
+    gap: 6px;
+    flex-direction: column;
+  }
 }
 
 .error {
@@ -96,14 +194,33 @@
   white-space: pre-line;
 }
 
+@media (max-width: v.$bp-sm) {
+  .error {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
 .muted {
   color: var(--muted);
   font-size: 14px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .muted {
+    font-size: 12px;
+  }
+}
+
 .bookingList {
   display: grid;
   gap: 12px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .bookingList {
+    gap: 10px;
+  }
 }
 
 .booking {
@@ -113,17 +230,39 @@
   padding: 12px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .booking {
+    border-radius: 10px;
+    padding: 10px;
+  }
+}
+
 .bookingTop {
   display: flex;
   justify-content: space-between;
   gap: 10px;
   align-items: center;
   margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: v.$bp-sm) {
+  .bookingTop {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
 }
 
 .bookingTitle {
   font-weight: 900;
   color: var(--text);
+  font-size: 14px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .bookingTitle {
+    font-size: 13px;
+  }
 }
 
 .badge {
@@ -134,6 +273,14 @@
   border: 1px solid var(--border);
   background: var(--card-bg);
   color: var(--text-soft);
+  white-space: nowrap;
+}
+
+@media (max-width: v.$bp-sm) {
+  .badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
 }
 
 .bookingRows {
@@ -141,25 +288,63 @@
   gap: 8px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .bookingRows {
+    gap: 6px;
+  }
+}
+
 .row {
   display: flex;
   justify-content: space-between;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: v.$bp-sm) {
+  .row {
+    gap: 8px;
+  }
 }
 
 .key {
   color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .key {
+    font-size: 12px;
+  }
 }
 
 .val {
   font-weight: 700;
   color: var(--text);
+  font-size: 13px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .val {
+    font-size: 12px;
+  }
 }
 
 .bookingActions {
   margin-top: 12px;
   display: flex;
   justify-content: flex-end;
+}
+
+@media (max-width: v.$bp-sm) {
+  .bookingActions {
+    margin-top: 8px;
+    justify-content: stretch;
+
+    :global(button) {
+      flex: 1;
+    }
+  }
 }
 
 .filters {
@@ -170,12 +355,35 @@
   align-items: center;
 }
 
+@media (max-width: v.$bp-md) {
+  .filters {
+    gap: 8px;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+}
+
 .filters :global(.input),
 .filters :global(.select),
 .filters :global(.btn) {
   border-radius: 10px;
   padding: 0 10px;
   font-size: 13px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .filters :global(.input),
+  .filters :global(.select),
+  .filters :global(.btn) {
+    width: 100%;
+    font-size: 12px;
+  }
 }
 
 .range {
@@ -189,10 +397,24 @@
   background: var(--card-bg);
 }
 
+@media (max-width: v.$bp-md) {
+  .range {
+    width: 100%;
+    justify-content: space-between;
+    gap: 6px;
+  }
+}
+
 .rangeTitle {
   font-size: 12px;
   font-weight: 900;
   color: var(--text);
+}
+
+@media (max-width: v.$bp-sm) {
+  .rangeTitle {
+    font-size: 11px;
+  }
 }
 
 .rangeItem {
@@ -201,17 +423,54 @@
   gap: 6px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .rangeItem {
+    gap: 4px;
+  }
+}
+
 .rangeKey {
   font-size: 12px;
   color: var(--muted);
+}
+
+@media (max-width: v.$bp-sm) {
+  .rangeKey {
+    font-size: 11px;
+  }
 }
 
 .range :global(.input[type='date']) {
   width: 140px;
 }
 
-.buttonsConteiner{
+@media (max-width: v.$bp-md) {
+  .range :global(.input[type='date']) {
+    width: auto;
+    flex: 1;
+  }
+}
+
+.buttonsConteiner {
   gap: 6px;
   display: flex;
   margin-left: 60px;
+}
+
+@media (max-width: v.$bp-md) {
+  .buttonsConteiner {
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .buttonsConteiner {
+    flex-direction: column;
+    gap: 8px;
+
+    :global(button) {
+      width: 100%;
+    }
+  }
 }
