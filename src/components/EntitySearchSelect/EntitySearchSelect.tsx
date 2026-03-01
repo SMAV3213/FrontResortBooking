@@ -1,6 +1,6 @@
 import React from 'react'
 import clsx from 'clsx'
-import s from './entitySearchSelect.module.scss'
+import s from './EntitySearchSelect.module.scss'
 
 export type SearchOption<T = unknown> = {
     value: string

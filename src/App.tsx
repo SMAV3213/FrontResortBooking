@@ -1,4 +1,4 @@
-import { BrowserRouter, RouterProvider } from 'react-router-dom'
+import { RouterProvider } from 'react-router-dom'
 import { router } from './routes/router'
 import './styles/global.scss'
 import { AuthProvider } from './auth/AuthProvider'

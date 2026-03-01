@@ -2,8 +2,21 @@ import axios, { AxiosError } from 'axios'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { tokenStorage } from './tokenStorage'
 import type { AuthResponseDTO, RefreshTokenDTO } from '../types/authDTOs' 
-export const API_BASE = 'https://localhost:7153'
-export const API_URL = 'https://localhost:7153/api'
+
+// Динамически определяем URL API
+const getApiUrl = () => {
+  // В разработке используем localhost:5173, в production используем текущий host
+  if (import.meta.env.DEV) {
+    return 'http://localhost:8080'
+  }
+  // В production - берём протокол и хост из текущей страницы, но меняем порт на 8080
+  const protocol = window.location.protocol
+  const hostname = window.location.hostname
+  return `${protocol}//${hostname}:8080`
+}
+
+export const API_BASE = getApiUrl()
+export const API_URL = `${getApiUrl()}/api`
 
 export const api: AxiosInstance = axios.create({
   baseURL: API_URL,

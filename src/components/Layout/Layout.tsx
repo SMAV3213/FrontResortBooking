@@ -1,6 +1,6 @@
 import React from 'react'
 import clsx from 'clsx'
-import s from './layout.module.scss'
+import s from './Layout.module.scss'
 import Header from '../Header/Header'
 import Footer from '../Footer/Footer'
 import { resetBodyScrollLock } from '../../utils/bodyScrollLock'

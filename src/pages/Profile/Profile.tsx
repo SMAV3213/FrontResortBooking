@@ -31,7 +31,7 @@ const canCancelByStatus = (status: string) => status === 'Created' || status ===
 const toDateTimeParam = (d: string) => (d ? `${d}T00:00:00` : undefined)
 
 const Profile: React.FC = () => {
-  const { user, logout, refreshMe } = useAuth()
+  const { user, refreshMe } = useAuth()
 
   const [confirmOpen, setConfirmOpen] = React.useState(false)
   const [confirmLoading, setConfirmLoading] = React.useState(false)

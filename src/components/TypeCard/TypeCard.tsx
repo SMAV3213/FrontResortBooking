@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import type { RoomTypeWithoutRoomsDTO } from '../../types/roomTypeDTOs'
 import s from './typeCard.module.scss'
 import { API_BASE } from '../../api/api'
+
 type Props = {
   item: RoomTypeWithoutRoomsDTO
   selected?: boolean

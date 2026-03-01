@@ -2,7 +2,7 @@ import React from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import { useLocation, useNavigate } from 'react-router-dom'
-import s from './authRequiredModal.module.scss'
+import s from './AuthRequiredModal.module.scss'
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/bodyScrollLock'
 
 type Props = {

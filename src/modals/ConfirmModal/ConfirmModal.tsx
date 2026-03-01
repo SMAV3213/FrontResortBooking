@@ -1,7 +1,7 @@
 import React from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
-import s from './confirmModal.module.scss'
+import s from './ConfirmModal.module.scss'
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/bodyScrollLock'
 
 type Props = {

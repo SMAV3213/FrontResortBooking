@@ -14,7 +14,7 @@ import type { RoomTypeWithoutRoomsDTO } from '../../types/roomTypeDTOs'
 
 import { decodeJwt, getUserIdFromJwt } from '../../auth/jwt'
 import { useAuth } from '../../auth/AuthProvider'
-import s from './home.module.scss'
+import s from './Home.module.scss'
 import About from '../AboutUs/AboutUs'
 
 const toDateTime = (date: string) => `${date}T00:00:00Z`

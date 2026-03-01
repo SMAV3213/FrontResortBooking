@@ -2,7 +2,7 @@ import React from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import type { RoomTypeWithoutRoomsDTO } from '../../types/roomTypeDTOs'
-import s from './typeInfo.module.scss'
+import s from './TypeInfo.module.scss'
 import { API_BASE } from '../../api/api'
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/bodyScrollLock'
 
