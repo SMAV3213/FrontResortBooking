@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { tokenStorage } from './tokenStorage'
-import type { AuthResponseDTO, RefreshTokenDTO } from '../types/authDTOs' 
+import type { AuthResponseDTO } from '../types/authDTOs' 
 
 // Динамически определяем URL API
 const getApiUrl = () => {
@@ -10,14 +10,14 @@ const getApiUrl = () => {
     return 'http://localhost:8080'
   }
 
-  return ``
+  return '/api'
 }
 
 export const API_BASE = getApiUrl()
-export const API_URL = `${getApiUrl()}/api`
+
 
 export const api: AxiosInstance = axios.create({
-  baseURL: API_URL,
+  baseURL: API_BASE,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 })
@@ -44,14 +44,16 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = []
 }
 
-const refreshToken = async () => {
-  const refreshToken = tokenStorage.getRefresh()
-  const payload: RefreshTokenDTO | {} = refreshToken ? { refreshToken } : {}
 
-  // используем чистый axios, чтобы не попасть в interceptors api
-  const res = await axios.post<AuthResponseDTO>(`${API_URL}/auth/refresh`, payload, {
-    withCredentials: true,
-  })
+const refreshToken = async () => {
+  const refreshTokenValue = tokenStorage.getRefresh()
+  const payload = refreshTokenValue ? { refreshToken: refreshTokenValue } : {}
+
+  const res = await axios.post<AuthResponseDTO>(
+    `${API_BASE}/auth/refresh`,    // ← теперь будет /api/auth/refresh
+    payload,
+    { withCredentials: true }
+  )
 
   return res.data
 }
