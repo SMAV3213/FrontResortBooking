@@ -5,11 +5,6 @@ import type { AuthResponseDTO } from '../types/authDTOs'
 
 // Динамически определяем URL API
 const getApiUrl = () => {
-  // В разработке используем localhost:5173, в production используем текущий host
-  if (import.meta.env.DEV) {
-    return 'http://localhost:8080'
-  }
-
   return '/api'
 }
 
