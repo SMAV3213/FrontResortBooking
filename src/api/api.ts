@@ -20,7 +20,7 @@ export const API_URL = `${getApiUrl()}/api`
 
 export const api: AxiosInstance = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
+  withCredentials: false,
   headers: { 'Content-Type': 'application/json' },
 })
 
