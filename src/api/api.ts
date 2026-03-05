@@ -12,7 +12,7 @@ const getApiUrl = () => {
   // В production - берём протокол и хост из текущей страницы, но меняем порт на 8080
   const protocol = window.location.protocol
   const hostname = window.location.hostname
-  return `${protocol}//${hostname}:8080`
+  return `${protocol}//${hostname}`
 }
 
 export const API_BASE = getApiUrl()
