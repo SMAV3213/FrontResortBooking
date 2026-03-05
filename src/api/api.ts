@@ -9,10 +9,8 @@ const getApiUrl = () => {
   if (import.meta.env.DEV) {
     return 'http://localhost:8080'
   }
-  // В production - берём протокол и хост из текущей страницы, но меняем порт на 8080
-  const protocol = window.location.protocol
-  const hostname = window.location.hostname
-  return `${protocol}//${hostname}`
+
+  return ``
 }
 
 export const API_BASE = getApiUrl()
