@@ -180,7 +180,8 @@
 
 @media (max-width: v.$bp-sm) {
   .rowMain {
-    min-width: 140px;
+    min-width: 0;
+    width: 100%;
   }
 }
 
@@ -216,6 +217,18 @@
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+}
+
+@media (max-width: v.$bp-sm) {
+  .rowActions {
+    width: 100%;
+    gap: 6px;
+
+    :global(.btn) {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  }
 }
 
 .error {
@@ -254,6 +267,13 @@
   padding: 16px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .modal {
+    border-radius: 12px;
+    padding: 12px;
+  }
+}
+
 .modalHead {
   display: flex;
   justify-content: space-between;
@@ -266,6 +286,12 @@
   font-weight: 900;
   font-size: 16px;
   color: var(--text);
+}
+
+@media (max-width: v.$bp-sm) {
+  .modalTitle {
+    font-size: 14px;
+  }
 }
 
 .form {
@@ -320,6 +346,12 @@
   gap: 10px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .previewGrid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+}
+
 .previewItem {
   position: relative;
   border-radius: 12px;
@@ -364,6 +396,13 @@
   align-items: flex-start;
 }
 
+@media (max-width: v.$bp-sm) {
+  .toolbar {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
 .toolbarPanel {
   border: 1px solid var(--border);
   background: var(--card-bg);
@@ -375,8 +414,22 @@
   min-width: 240px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .toolbarPanel {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
 .toolbarActions {
   min-width: 220px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .toolbarActions {
+    min-width: 0;
+    width: 100%;
+  }
 }
 
 .toolbarTitle {
@@ -394,9 +447,15 @@
   align-items: center;
 }
 
+@media (max-width: v.$bp-sm) {
+  .toolbarContent {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 .toolbarPanel :global(.input),
 .toolbarPanel :global(.select) {
-  
   padding: 0 10px;
   font-size: 13px;
   border-radius: 10px;
@@ -412,6 +471,15 @@
 .w160 { width: 160px; }
 .w200 { width: 200px; }
 .w240 { width: 240px; }
+
+@media (max-width: v.$bp-sm) {
+  .w140,
+  .w160,
+  .w200,
+  .w240 {
+    width: 100%;
+  }
+}
 
 /* today widgets */
 .todayGrid {
@@ -434,12 +502,27 @@
   padding: 12px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .todayCard {
+    border-radius: 12px;
+    padding: 10px;
+  }
+}
+
 .todayHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 10px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .todayHead {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
 }
 
 .todayTitle {
@@ -450,6 +533,12 @@
 .todayBtn {
   height: 34px;
   padding: 0 10px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .todayBtn {
+    width: 100%;
+  }
 }
 
 .miniList {
@@ -467,6 +556,15 @@
   border-radius: 14px;
   background: var(--card-bg);
   padding: 10px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .miniRow {
+    flex-direction: column;
+    gap: 6px;
+    border-radius: 10px;
+    padding: 8px;
+  }
 }
 
 .miniMain {
@@ -492,16 +590,33 @@
   flex: 0 0 auto;
 }
 
+@media (max-width: v.$bp-sm) {
+  .miniBtn {
+    width: 100%;
+  }
+}
+
 /* date range pill */
 .range {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 
   padding: 6px 8px;
   border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--card-bg);
+}
+
+@media (max-width: v.$bp-sm) {
+  .range {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    width: 100%;
+  }
 }
 
 .rangeTitle {
@@ -516,13 +631,33 @@
   gap: 6px;
 }
 
+@media (max-width: v.$bp-sm) {
+  .rangeItem {
+    display: flex;
+    width: 100%;
+  }
+
+  .rangeItem :global(.input[type='date']) {
+    flex: 1;
+    min-width: 0;
+    width: 100% !important;
+  }
+}
+
 .rangeKey {
   font-size: 12px;
   color: var(--muted);
+  flex-shrink: 0;
 }
 
 .range :global(.input[type='date']) {
   width: 140px;
+}
+
+@media (max-width: v.$bp-sm) {
+  .range :global(.input[type='date']) {
+    width: 100%;
+  }
 }
 
 /* advanced block */
@@ -532,6 +667,12 @@
   gap: 10px;
   margin-top: 6px;
   justify-items: start;
+}
+
+@media (max-width: v.$bp-sm) {
+  .advancedBlock {
+    justify-items: stretch;
+  }
 }
 
 .hint {
@@ -547,7 +688,13 @@
   width: min(520px, 100%);
 }
 
-.textareaDescription{
+@media (max-width: v.$bp-sm) {
+  .searchContainer {
+    width: 100%;
+  }
+}
+
+.textareaDescription {
   width: 100%;
   height: 140px;
   padding: 0 14px;

@@ -56,7 +56,6 @@ const SORT_OPTIONS: { value: 'checkIn' | 'createdAt' | 'totalPrice'; label: stri
 const MINI_TAKE = 5
 
 const BookingsTab: React.FC = () => {
-  // MAIN LIST
   const [items, setItems] = React.useState<BookingDTO[]>([])
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -65,7 +64,6 @@ const BookingsTab: React.FC = () => {
   const pageSize = 20
   const [total, setTotal] = React.useState(0)
 
-  // filters
   const [status, setStatus] = React.useState<'' | BookingStatus>('')
 
   const [userOpt, setUserOpt] = React.useState<SearchOption<UserDTO> | null>(null)

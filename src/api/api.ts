@@ -10,7 +10,6 @@ const getApiUrl = () => {
 
 export const API_BASE = getApiUrl()
 
-
 export const api: AxiosInstance = axios.create({
   baseURL: API_BASE,
   withCredentials: true,

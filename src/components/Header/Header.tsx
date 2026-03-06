@@ -50,7 +50,7 @@ const Header: React.FC = () => {
             className={clsx(s['br-theme-toggle'])}
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+            title={theme === 'dark' ? 'Светлая тема' : 'Темная тема'}
           >
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
@@ -115,7 +115,7 @@ const Header: React.FC = () => {
                     className={clsx(s['br-mobile-theme-toggle'])}
                     onClick={toggleTheme}
                   >
-                    {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+                    {theme === 'dark' ? '☀️ Светлая' : '🌙 Темная'}
                   </button>
 
                   {isAuth ? (

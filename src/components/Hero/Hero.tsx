@@ -2,6 +2,7 @@ import React from 'react'
 import clsx from 'clsx'
 import s from './hero.module.scss'
 import { GUEST_OPTIONS } from '../../shared/countArray'
+
 type Props = {
     loading?: boolean
     onSearch: (params: { guests: number; checkIn: string; checkOut: string }) => void | Promise<void>
@@ -26,7 +27,6 @@ const Hero: React.FC<Props> = ({ loading, onSearch }) => {
     const [checkOut, setCheckOut] = React.useState<string>('')
     const [error, setError] = React.useState<string | null>(null)
 
-
     const minCheckOut = checkIn ? addDays(checkIn, 1) : today
 
     const validate = () => {
@@ -38,11 +38,22 @@ const Hero: React.FC<Props> = ({ loading, onSearch }) => {
         return null
     }
 
-    React.useEffect(() => {
-        if (checkOut && checkOut < minCheckOut) {
+    // ← вот ключевое изменение
+    const handleCheckInChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newCheckIn = e.target.value
+        setCheckIn(newCheckIn)
+
+        if (newCheckIn) {
+            const nextDay = addDays(newCheckIn, 1)
+
+            // Если выезд не задан или стал <= заезду — подставляем заезд + 1
+            if (!checkOut || checkOut <= newCheckIn) {
+                setCheckOut(nextDay)
+            }
+        } else {
             setCheckOut('')
         }
-    }, [checkIn])
+    }
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -81,7 +92,7 @@ const Hero: React.FC<Props> = ({ loading, onSearch }) => {
                             type="date"
                             value={checkIn}
                             min={today}
-                            onChange={(e) => setCheckIn(e.target.value)}
+                            onChange={handleCheckInChange}
                         />
 
                         <input
