@@ -61,7 +61,7 @@ export const bookingRequests = {
   },
 
   async cancel(id: string) {
-    const res = await api.delete(`/bookings/${id}`)
+    const res = await api.patch(`/bookings/${id}`)
     return res.data
   },
 }
