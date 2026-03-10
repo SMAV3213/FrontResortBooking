@@ -6,6 +6,7 @@ import s from './header.module.scss'
 import { useAuth } from '../../auth/AuthProvider'
 import { ERole } from '../../types/userDTOs'
 import { Disclosure } from '@headlessui/react'
+import logoSmall from '../../../public/logo_small.png'
 
 const Header: React.FC = () => {
   const { isAuth, user, role, logout } = useAuth()
@@ -27,13 +28,24 @@ const Header: React.FC = () => {
     <header className={clsx(s['br-header'])}>
       <div className={clsx('br-container', s['br-header-inner'])}>
         <Link to="/" className={clsx(s['br-logo'])}>
-          Baikal Breeze
+          <img
+            src={logoSmall}
+            alt=""
+            className={s['br-logo-img']}
+            width={40}
+            height={40}
+            draggable={false}
+          />
+          <span className={s['br-logo-text']}>
+            Baikal
+            <span className={s['br-logo-accent']}>Breeze</span>
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
         <nav className={clsx(s['br-nav'])}>
           {navLinks.map(link => (
-            <Link 
+            <Link
               key={link.path}
               to={link.path}
               className={clsx(s['br-nav-link'], { [s['br-nav-link-active']]: isActive(link.path) })}
@@ -45,8 +57,8 @@ const Header: React.FC = () => {
 
         {/* Desktop Theme & Auth */}
         <div className={clsx(s['br-right-controls'])}>
-          <button 
-            type="button" 
+          <button
+            type="button"
             className={clsx(s['br-theme-toggle'])}
             onClick={toggleTheme}
             aria-label="Toggle theme"
@@ -58,9 +70,9 @@ const Header: React.FC = () => {
           {isAuth ? (
             <div className={clsx(s['br-user-menu'])}>
               <span className={s['br-user-name']}>{user?.login}</span>
-              <button 
-                type="button" 
-                className={clsx('btn', 'btn-primary')} 
+              <button
+                type="button"
+                className={clsx('btn', 'btn-primary')}
                 onClick={logout}
               >
                 Выйти
@@ -86,7 +98,7 @@ const Header: React.FC = () => {
         <Disclosure>
           {({ open }) => (
             <>
-              <Disclosure.Button 
+              <Disclosure.Button
                 className={clsx(s['br-burger'], { [s['br-burger-open']]: open })}
                 aria-label="Toggle menu"
               >
@@ -110,8 +122,8 @@ const Header: React.FC = () => {
                 </nav>
 
                 <div className={clsx(s['br-mobile-controls'])}>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={clsx(s['br-mobile-theme-toggle'])}
                     onClick={toggleTheme}
                   >
@@ -119,8 +131,8 @@ const Header: React.FC = () => {
                   </button>
 
                   {isAuth ? (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className={clsx('btn', 'btn-primary')}
                       onClick={logout}
                     >
