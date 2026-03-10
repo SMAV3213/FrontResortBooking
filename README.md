@@ -208,7 +208,7 @@ export const fetchMyData = async (): Promise<MyData> => {
 Создайте файл `.env.local` (не коммитьте его):
 
 ```env
-VITE_API_BASE_URL=http://localhost:5001/api
+VITE_API_BASE_URL=http://api
 VITE_APP_NAME=Resort Booking
 ```
 

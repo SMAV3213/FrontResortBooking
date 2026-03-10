@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import type { RoomTypeWithoutRoomsDTO } from '../../types/roomTypeDTOs'
 import s from './TypeInfo.module.scss'
-import { API_BASE } from '../../api/api'
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/bodyScrollLock'
 
 type Props = {
@@ -125,7 +124,7 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
                     <div className={s.gallery}>
                         <div className={s.viewer}>
                             {activeImage ? (
-                                <img className={s.image} src={API_BASE + activeImage} alt={`${item.name} фото ${safeActiveIdx + 1}`} />
+                                <img className={s.image} src={activeImage} alt={`${item.name} фото ${safeActiveIdx + 1}`} />
                             ) : (
                                 <div className={s.noImage}>Нет фотографий</div>
                             )}
@@ -160,7 +159,7 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
                                         onClick={() => setActiveIdx(idx)}
                                         aria-label={`Открыть фото ${idx + 1}`}
                                     >
-                                        <img className={s.thumbImg} src={API_BASE + src} alt="" />
+                                        <img className={s.thumbImg} src={src} alt="" />
                                     </button>
                                 ))}
                             </div>

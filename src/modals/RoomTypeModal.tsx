@@ -4,7 +4,6 @@ import clsx from 'clsx'
 import { lockBodyScroll, unlockBodyScroll } from '../utils/bodyScrollLock'
 import { roomTypesRequests } from '../api'
 import { getApiErrorMessage } from '../api/getApiErrorMessage'
-import { API_BASE } from '../api/api'
 import { GUEST_OPTIONS } from '../shared/countArray'
 import type { RoomTypeWithoutRoomsDTO, CreateRoomTypeDTO, UpdateRoomTypeDTO } from '../types/roomTypeDTOs'
 import s from '../pages/Admin/admin.module.scss'
@@ -147,8 +146,8 @@ const RoomTypeModal: React.FC<Props> = ({ open, initial, onClose, onSaved }) => 
                             <div className={s.previewTitle}>Текущие фото</div>
                             <div className={s.previewGrid}>
                                 {initial.imageUrls.map((u) => (
-                                    <a key={u} className={s.previewItem} href={API_BASE + u} target="_blank" rel="noreferrer">
-                                        <img className={s.previewImg} src={API_BASE + u} alt="" />
+                                    <a key={u} className={s.previewItem} href={u} target="_blank" rel="noreferrer">
+                                        <img className={s.previewImg} src={u} alt="" />
                                     </a>
                                 ))}
                             </div>
