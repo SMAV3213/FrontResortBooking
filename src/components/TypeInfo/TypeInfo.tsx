@@ -23,33 +23,51 @@ const priceFmt = new Intl.NumberFormat('ru-RU', {
 
 type AnimState = 'closed' | 'opening' | 'open' | 'closing'
 const ANIM_MS = 320
-const SWIPE_THRESHOLD = 50 // минимум пикселей для свайпа
-const BOUNCE_MS = 300      // время возврата при попытке свайпнуть за край
+const SLIDE_MS = 360       // длительность перехода между слайдами
+const SWIPE_THRESHOLD = 50
+const BOUNCE_MS = 300
 
-const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions, bookingDisabled, onBook }) => {
+const TypeInfo: React.FC<Props> = ({
+    open,
+    item,
+    onClose,
+    className,
+    showActions,
+    bookingDisabled,
+    onBook,
+}) => {
     const isBrowser = typeof document !== 'undefined'
 
-    const [activeIdx, setActiveIdx] = React.useState(0)
     const [mounted, setMounted] = React.useState(open)
     const [anim, setAnim] = React.useState<AnimState>(open ? 'open' : 'closed')
 
-    // Свайп состояние
+    const [slideIdx, setSlideIdx] = React.useState(0)
+    const [skipTransition, setSkipTransition] = React.useState(false)
+
     const [dragOffset, setDragOffset] = React.useState(0)
     const [isDragging, setIsDragging] = React.useState(false)
     const [isBouncing, setIsBouncing] = React.useState(false)
-    const touchRef = React.useRef<{ startX: number; startY: number; locked: boolean | null }>({
-        startX: 0,
-        startY: 0,
-        locked: null,
-    })
+    const touchRef = React.useRef<{
+        startX: number
+        startY: number
+        locked: boolean | null
+    }>({ startX: 0, startY: 0, locked: null })
     const viewerRef = React.useRef<HTMLDivElement>(null)
 
     const images = item?.imageUrls ?? []
     const hasImages = images.length > 0
-    const safeActiveIdx = Math.min(activeIdx, Math.max(0, images.length - 1))
-    const activeImage = hasImages ? images[safeActiveIdx] : null
+    const canLoop = images.length > 1
 
-    // Анимация открытия/закрытия
+    const extImages = React.useMemo(() => {
+        if (!canLoop) return images
+        return [images[images.length - 1], ...images, images[0]]
+    }, [images, canLoop])
+
+    const visualIdx = canLoop
+        ? ((slideIdx - 1 + images.length) % images.length)
+        : slideIdx
+
+
     React.useEffect(() => {
         let t: number | undefined
         let raf1: number | undefined
@@ -78,27 +96,39 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
 
     React.useEffect(() => {
         if (open) {
-            setActiveIdx(0)
+            setSlideIdx(canLoop ? 1 : 0)
             setDragOffset(0)
+            setSkipTransition(true)
         }
-    }, [open, item?.id])
+    }, [open, item?.id, canLoop])
 
-    // Клавиатура
+    React.useEffect(() => {
+        if (!skipTransition) return
+        let raf1: number | undefined
+        let raf2: number | undefined
+        raf1 = requestAnimationFrame(() => {
+            raf2 = requestAnimationFrame(() => setSkipTransition(false))
+        })
+        return () => {
+            if (raf1) cancelAnimationFrame(raf1)
+            if (raf2) cancelAnimationFrame(raf2)
+        }
+    }, [skipTransition])
+
     React.useEffect(() => {
         if (!open) return
-
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose()
-            if (!hasImages) return
-            if (e.key === 'ArrowLeft') setActiveIdx((i) => Math.max(0, i - 1))
-            if (e.key === 'ArrowRight') setActiveIdx((i) => Math.min(images.length - 1, i + 1))
+            if (images.length <= 1) return
+            if (e.key === 'ArrowLeft')
+                setSlideIdx((i) => Math.max(0, i - 1))
+            if (e.key === 'ArrowRight')
+                setSlideIdx((i) => Math.min(extImages.length - 1, i + 1))
         }
-
         document.addEventListener('keydown', onKeyDown)
         return () => document.removeEventListener('keydown', onKeyDown)
-    }, [open, onClose, hasImages, images.length])
+    }, [open, onClose, images.length, extImages.length])
 
-    // Блокировка скролла
     React.useEffect(() => {
         if (!mounted || !isBrowser) return
         lockBodyScroll()
@@ -106,84 +136,89 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
     }, [mounted, isBrowser])
 
 
-    const handleTouchStart = React.useCallback((e: React.TouchEvent) => {
-        if (images.length <= 1) return
-        const touch = e.touches[0]
-        touchRef.current = {
-            startX: touch.clientX,
-            startY: touch.clientY,
-            locked: null, // ещё не определили направление
-        }
-        setIsDragging(true)
-        setIsBouncing(false)
-    }, [images.length])
+    const handleTransitionEnd = React.useCallback(
+        (e: React.TransitionEvent<HTMLDivElement>) => {
+            if (e.target !== e.currentTarget || e.propertyName !== 'transform') return
+            if (!canLoop) return
 
-    const handleTouchMove = React.useCallback((e: React.TouchEvent) => {
-        if (!isDragging || images.length <= 1) return
-
-        const touch = e.touches[0]
-        const dx = touch.clientX - touchRef.current.startX
-        const dy = touch.clientY - touchRef.current.startY
-
-        // Определяем направление при первом движении
-        if (touchRef.current.locked === null) {
-            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-                touchRef.current.locked = Math.abs(dx) > Math.abs(dy) // true = горизонтальный
+            if (slideIdx === 0) {
+                // клон последнего → настоящий последний
+                setSkipTransition(true)
+                setSlideIdx(images.length)
+            } else if (slideIdx === extImages.length - 1) {
+                // клон первого → настоящий первый
+                setSkipTransition(true)
+                setSlideIdx(1)
             }
-            return
-        }
+        },
+        [slideIdx, canLoop, images.length, extImages.length],
+    )
 
-        // Если скролл вертикальный — не мешаем
-        if (!touchRef.current.locked) return
+    const handleTouchStart = React.useCallback(
+        (e: React.TouchEvent) => {
+            if (images.length <= 1) return
+            const t = e.touches[0]
+            touchRef.current = { startX: t.clientX, startY: t.clientY, locked: null }
+            setIsDragging(true)
+            setIsBouncing(false)
+        },
+        [images.length],
+    )
 
-        e.preventDefault()
+    const handleTouchMove = React.useCallback(
+        (e: React.TouchEvent) => {
+            if (!isDragging || images.length <= 1) return
 
-        // Сопротивление на краях (резинка)
-        const atStart = safeActiveIdx === 0 && dx > 0
-        const atEnd = safeActiveIdx === images.length - 1 && dx < 0
+            const t = e.touches[0]
+            const dx = t.clientX - touchRef.current.startX
+            const dy = t.clientY - touchRef.current.startY
 
-        if (atStart || atEnd) {
-            setDragOffset(dx * 0.3) // замедляем на краях
-        } else {
-            setDragOffset(dx)
-        }
-    }, [isDragging, images.length, safeActiveIdx])
+            if (touchRef.current.locked === null) {
+                if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                    touchRef.current.locked = Math.abs(dx) > Math.abs(dy)
+                }
+                return
+            }
+            if (!touchRef.current.locked) return
+
+            e.preventDefault()
+            setDragOffset(dx) 
+        },
+        [isDragging, images.length],
+    )
 
     const handleTouchEnd = React.useCallback(() => {
         if (!isDragging) return
         setIsDragging(false)
 
-        const dx = dragOffset
-
-        if (Math.abs(dx) > SWIPE_THRESHOLD) {
-            if (dx < 0 && safeActiveIdx < images.length - 1) {
-                // Свайп влево → следующее фото
-                setActiveIdx(safeActiveIdx + 1)
-            } else if (dx > 0 && safeActiveIdx > 0) {
-                // Свайп вправо → предыдущее фото
-                setActiveIdx(safeActiveIdx - 1)
-            }
+        if (Math.abs(dragOffset) > SWIPE_THRESHOLD) {
+            if (dragOffset < 0)
+                setSlideIdx((i) => Math.min(extImages.length - 1, i + 1))
+            else
+                setSlideIdx((i) => Math.max(0, i - 1))
         }
 
-        // Анимация возврата
         setIsBouncing(true)
         setDragOffset(0)
-
         setTimeout(() => setIsBouncing(false), BOUNCE_MS)
-    }, [isDragging, dragOffset, safeActiveIdx, images.length])
+    }, [isDragging, dragOffset, extImages.length])
 
-
-    const prev = () => setActiveIdx((i) => Math.max(0, i - 1))
-    const next = () => setActiveIdx((i) => Math.min(images.length - 1, i + 1))
+    const prev = () => setSlideIdx((i) => Math.max(0, i - 1))
+    const next = () => setSlideIdx((i) => Math.min(extImages.length - 1, i + 1))
+    const goToSlide = (idx: number) => setSlideIdx(canLoop ? idx + 1 : idx)
 
     if (!isBrowser || !mounted || !item) return null
 
-    // Стиль для анимации свайпа
     const carouselStyle: React.CSSProperties = {
         display: 'flex',
-        width: `${images.length * 100}%`,
-        transform: `translateX(calc(-${safeActiveIdx * (100 / images.length)}% + ${dragOffset}px))`,
-        transition: isDragging ? 'none' : isBouncing ? `transform ${BOUNCE_MS}ms cubic-bezier(0.25, 1, 0.5, 1)` : 'transform 360ms cubic-bezier(0.22, 1, 0.36, 1)',
+        width: `${extImages.length * 100}%`,
+        transform: `translateX(calc(-${slideIdx * (100 / extImages.length)}% + ${dragOffset}px))`,
+        transition:
+            skipTransition || isDragging
+                ? 'none'
+                : isBouncing
+                    ? `transform ${BOUNCE_MS}ms cubic-bezier(0.25, 1, 0.5, 1)`
+                    : `transform ${SLIDE_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`,
         willChange: 'transform',
     }
 
@@ -205,11 +240,15 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
                     <div className={s.titleWrap}>
                         <div className={s.title}>{item.name}</div>
                         <div className={s.subtitle}>
-                            До {item.capacity} гостей • {priceFmt.format(item.pricePerNight)}/ночь
+                            До {item.capacity} гостей •{' '}
+                            {priceFmt.format(item.pricePerNight)}/ночь
                         </div>
                     </div>
-
-                    <button type="button" className={clsx('btn', 'btn-ghost', s.close)} onClick={onClose}>
+                    <button
+                        type="button"
+                        className={clsx('btn', 'btn-ghost', s.close)}
+                        onClick={onClose}
+                    >
                         Закрыть
                     </button>
                 </div>
@@ -224,16 +263,19 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
                             onTouchEnd={handleTouchEnd}
                         >
                             {hasImages ? (
-                                <div style={carouselStyle}>
-                                    {images.map((src, idx) => (
+                                <div
+                                    style={carouselStyle}
+                                    onTransitionEnd={handleTransitionEnd}
+                                >
+                                    {extImages.map((src, idx) => (
                                         <img
-                                            key={src + idx}
+                                            key={`slide-${idx}`}
                                             className={s.image}
                                             src={src}
-                                            alt={`${item.name} фото ${idx + 1}`}
+                                            alt={`${item.name} фото`}
                                             draggable={false}
                                             style={{
-                                                width: `${100 / images.length}%`,
+                                                width: `${100 / extImages.length}%`,
                                                 flexShrink: 0,
                                             }}
                                         />
@@ -245,17 +287,20 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
 
                             {hasImages && images.length > 1 && (
                                 <div className={s.viewerControls}>
-                                    <button type="button" className={clsx('btn', 'btn-ghost', s.nav)} onClick={prev} disabled={safeActiveIdx === 0}>
+                                    <button
+                                        type="button"
+                                        className={clsx('btn', 'btn-ghost', s.nav)}
+                                        onClick={prev}
+                                    >
                                         ←
                                     </button>
                                     <div className={s.counter}>
-                                        {safeActiveIdx + 1} / {images.length}
+                                        {visualIdx + 1} / {images.length}
                                     </div>
                                     <button
                                         type="button"
                                         className={clsx('btn', 'btn-ghost', s.nav)}
                                         onClick={next}
-                                        disabled={safeActiveIdx === images.length - 1}
                                     >
                                         →
                                     </button>
@@ -263,7 +308,6 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
                             )}
                         </div>
 
-                        {/* Точки-индикаторы под фото */}
                         {hasImages && images.length > 1 && (
                             <>
                                 <div className={s.dots}>
@@ -271,8 +315,11 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
                                         <button
                                             key={idx}
                                             type="button"
-                                            className={clsx(s.dot, idx === safeActiveIdx && s.dotActive)}
-                                            onClick={() => setActiveIdx(idx)}
+                                            className={clsx(
+                                                s.dot,
+                                                idx === visualIdx && s.dotActive,
+                                            )}
+                                            onClick={() => goToSlide(idx)}
                                             aria-label={`Фото ${idx + 1}`}
                                         />
                                     ))}
@@ -283,11 +330,19 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
                                         <button
                                             key={src + idx}
                                             type="button"
-                                            className={clsx(s.thumbBtn, idx === safeActiveIdx && s.thumbActive)}
-                                            onClick={() => setActiveIdx(idx)}
+                                            className={clsx(
+                                                s.thumbBtn,
+                                                idx === visualIdx && s.thumbActive,
+                                            )}
+                                            onClick={() => goToSlide(idx)}
                                             aria-label={`Открыть фото ${idx + 1}`}
                                         >
-                                            <img className={s.thumbImg} src={src} alt="" draggable={false} />
+                                            <img
+                                                className={s.thumbImg}
+                                                src={src}
+                                                alt=""
+                                                draggable={false}
+                                            />
                                         </button>
                                     ))}
                                 </div>
@@ -306,11 +361,15 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
                             <div className={s.meta}>
                                 <div className={s.metaRow}>
                                     <span className={s.metaKey}>Вместимость</span>
-                                    <span className={s.metaVal}>до {item.capacity}</span>
+                                    <span className={s.metaVal}>
+                                        до {item.capacity}
+                                    </span>
                                 </div>
                                 <div className={s.metaRow}>
                                     <span className={s.metaKey}>Цена</span>
-                                    <span className={s.metaVal}>{priceFmt.format(item.pricePerNight)} / ночь</span>
+                                    <span className={s.metaVal}>
+                                        {priceFmt.format(item.pricePerNight)} / ночь
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -325,7 +384,11 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
                                 >
                                     Забронировать
                                 </button>
-                                <button type="button" className={clsx('btn')} onClick={onClose}>
+                                <button
+                                    type="button"
+                                    className={clsx('btn')}
+                                    onClick={onClose}
+                                >
                                     Выбрать другой
                                 </button>
                             </div>
@@ -334,7 +397,7 @@ const TypeInfo: React.FC<Props> = ({ open, item, onClose, className, showActions
                 </div>
             </div>
         </div>,
-        document.body
+        document.body,
     )
 }
 
