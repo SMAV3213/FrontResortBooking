@@ -299,6 +299,9 @@ const BookingsTab: React.FC = () => {
   const renderMiniRow = (b: BookingDTO) => {
     const inD = toDate(b.checkIn)
     const outD = toDate(b.checkOut)
+    const isCancelled = b.status === 'Cancelled'
+    const isCompleted = b.status === 'Completed'
+    const cantCancel = isCancelled || isCompleted
 
     return (
       <div key={b.id} className={s.miniRow}>
@@ -312,8 +315,13 @@ const BookingsTab: React.FC = () => {
           </div>
         </div>
 
-        <button className={clsx('btn', 'btn-ghost', s.miniBtn)} onClick={() => openCancelConfirm(b)}>
-          Отменить
+        <button
+          className={clsx('btn', 'btn-ghost', s.miniBtn)}
+          onClick={() => openCancelConfirm(b)}
+          disabled={cantCancel}
+          title={isCancelled ? 'Бронь уже отменена' : isCompleted ? 'Бронь завершена' : 'Отменить бронь'}
+        >
+          {isCancelled ? 'Отменена' : 'Отменить'}
         </button>
       </div>
     )
@@ -579,6 +587,9 @@ const BookingsTab: React.FC = () => {
                 const inD = toDate(b.checkIn)
                 const outD = toDate(b.checkOut)
                 const createdD = toDate(b.createdAt)
+                const isCancelled = b.status === 'Cancelled'
+                const isCompleted = b.status === 'Completed'
+                const cantCancel = isCancelled || isCompleted
 
                 return (
                   <div key={b.id} className={s.rowCard}>
@@ -600,12 +611,18 @@ const BookingsTab: React.FC = () => {
                           setEditing(b)
                           setEditOpen(true)
                         }}
+                        disabled={cantCancel}
                       >
                         Редактировать
                       </button>
 
-                      <button className={clsx('btn', 'btn-ghost')} onClick={() => openCancelConfirm(b)}>
-                        Отменить
+                      <button
+                        className={clsx('btn', 'btn-ghost')}
+                        onClick={() => openCancelConfirm(b)}
+                        disabled={cantCancel}
+                        title={isCancelled ? 'Бронь уже отменена' : isCompleted ? 'Бронь завершена' : 'Отменить бронь'}
+                      >
+                        {isCancelled ? 'Отменена' : 'Отменить'}
                       </button>
                     </div>
                   </div>

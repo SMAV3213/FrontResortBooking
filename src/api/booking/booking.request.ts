@@ -61,7 +61,7 @@ export const bookingRequests = {
   },
 
   async cancel(id: string) {
-    const res = await api.patch(`/bookings/${id}`)
+    const res = await api.patch(`/bookings/${id}/cancel`)
     return res.data
   },
 }
