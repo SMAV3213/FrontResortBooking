@@ -8,6 +8,7 @@ import About from '../pages/AboutUs/AboutUs'
 import Login from '../pages/Auth/Login/Login'
 import Register from '../pages/Auth/Register/Register'
 import Forbidden from '../pages/Forbidden/Forbidden'
+import NotFound from '../pages/404/NotFound'
 
 import ProtectedRoute from '../auth/ProtectedRoute'
 import { ERole } from '../types/userDTOs'
@@ -36,6 +37,8 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute role={ERole.Admin} />,
         children: [{ path: 'admin', element: <AdminPanel /> }],
       },
+
+      { path: '*', element: <NotFound /> },
     ],
   },
 ])
