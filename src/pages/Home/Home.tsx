@@ -8,7 +8,8 @@ import TypeInfo from '../../components/TypeInfo/TypeInfo'
 import AuthRequiredModal from '../../modals/AuthRequiredModal/AuthRequiredModal'
 import ConfirmModal from '../../modals/ConfirmModal/ConfirmModal'
 
-import { roomTypesRequests, bookingRequests, tokenStorage } from '../../api'
+import { useRoomTypesAvailable } from '../../api/queries'
+import { bookingRequests, tokenStorage } from '../../api'
 import { getApiErrorMessage } from '../../api/getApiErrorMessage'
 import type { RoomTypeWithoutRoomsDTO } from '../../types/roomTypeDTOs'
 
@@ -25,15 +26,22 @@ const Home: React.FC = () => {
   const nav = useNavigate()
   const { isAuth } = useAuth()
 
-  const [items, setItems] = React.useState<RoomTypeWithoutRoomsDTO[]>([])
-  const [loading, setLoading] = React.useState(false)
+  const [searchParams, setSearchParams] = React.useState<SearchParams | null>(null)
   const [showResults, setShowResults] = React.useState(false)
 
-  const [searchParams, setSearchParams] = React.useState<SearchParams | null>(null)
+  const { data: availableItems, isLoading: loading, isFetching, isPlaceholderData } = useRoomTypesAvailable(
+    showResults && searchParams ? searchParams : null
+  )
+  const items = availableItems ?? []
 
   const [selectedId, setSelectedId] = React.useState<string | null>(null)
   const [selected, setSelected] = React.useState<RoomTypeWithoutRoomsDTO | null>(null)
   const [open, setOpen] = React.useState(false)
+
+  React.useEffect(() => {
+    setSelectedId(items[0]?.id ?? null)
+    setSelected(items[0] ?? null)
+  }, [items])
 
   const [bookingLoading, setBookingLoading] = React.useState(false)
   const [authModalOpen, setAuthModalOpen] = React.useState(false)
@@ -41,28 +49,6 @@ const Home: React.FC = () => {
   const [confirmOpen, setConfirmOpen] = React.useState(false)
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const [pendingRoomType, setPendingRoomType] = React.useState<RoomTypeWithoutRoomsDTO | null>(null)
-
-  const fetchAvailable = React.useCallback(async (params: SearchParams) => {
-    setLoading(true)
-    try {
-      const data = await roomTypesRequests.getAvailable({
-        guests: params.guests,
-        checkIn: toDateTime(params.checkIn),
-        checkOut: toDateTime(params.checkOut),
-      })
-
-      setItems(data)
-      setSelectedId(data[0]?.id ?? null)
-      setSelected(data[0] ?? null)
-    } catch (e) {
-      console.error(getApiErrorMessage(e))
-      setItems([])
-      setSelectedId(null)
-      setSelected(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
 
   const handleBook = async (roomType: RoomTypeWithoutRoomsDTO) => {
     if (!searchParams) {
@@ -153,15 +139,17 @@ const Home: React.FC = () => {
       <div className="main">
         <Hero
           loading={loading}
-          onSearch={async (params) => {
+          onSearch={(params) => {
             setSearchParams(params)
             setShowResults(true)
-            await fetchAvailable(params)
           }}
         />
 
         <div className={clsx(s.reveal, showResults && s.revealOpen)}>
           <div className={s.revealBody}>
+            {(isFetching && isPlaceholderData) && (
+              <div style={{ marginBottom: 8, fontSize: 12, color: 'rgba(234,240,255,0.6)' }}>Обновление…</div>
+            )}
             <div>
               <TypeList
                 items={items}

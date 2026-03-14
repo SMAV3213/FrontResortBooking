@@ -7,56 +7,42 @@ import Pagination from '../../../../components/Pagination/Pagination'
 import AdminListToolbar from '../AdminToolBar'
 import ConfirmModal from '../../../../modals/ConfirmModal/ConfirmModal'
 
+import { useRoomTypesList, useInvalidateRoomTypes } from '../../../../api/queries'
 import { roomTypesRequests } from '../../../../api'
 import { getApiErrorMessage } from '../../../../api/getApiErrorMessage'
 import type { RoomTypeWithoutRoomsDTO } from '../../../../types/roomTypeDTOs'
 
 import s from '../../admin.module.scss'
 
-const RoomTypesTab: React.FC = () => {
-  const [items, setItems] = React.useState<RoomTypeWithoutRoomsDTO[]>([])
-  const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
+const pageSize = 12
 
+const RoomTypesTab: React.FC = () => {
   const [page, setPage] = React.useState(1)
-  const [total, setTotal] = React.useState(0)
-  const pageSize = 12
   const [search, setSearch] = React.useState('')
+
+  const { data, isLoading, isFetching, isPlaceholderData, error, refetch } = useRoomTypesList({
+    page,
+    pageSize,
+    search: search.trim() || undefined,
+    sortBy: 'name',
+    sortDir: 'asc',
+  })
+
+  const items = data?.items ?? []
+  const total = data?.total ?? 0
+  const invalidate = useInvalidateRoomTypes()
 
   const [modalOpen, setModalOpen] = React.useState(false)
   const [editing, setEditing] = React.useState<RoomTypeWithoutRoomsDTO | null>(null)
 
-  // confirm delete
   const [confirmOpen, setConfirmOpen] = React.useState(false)
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const [typeToDelete, setTypeToDelete] = React.useState<RoomTypeWithoutRoomsDTO | null>(null)
 
   const load = React.useCallback(async () => {
-    setError(null)
-    setLoading(true)
-    try {
-      const res = await roomTypesRequests.getAll({
-        page,
-        pageSize,
-        search: search.trim() || undefined,
-        sortBy: 'name',
-        sortDir: 'asc',
-      })
-      setItems(res.items)
-      setTotal(res.total)
-    } catch (e) {
-      setItems([])
-      setTotal(0)
-      setError(getApiErrorMessage(e))
-    } finally {
-      setLoading(false)
-    }
-  }, [page, pageSize, search])
-
-  React.useEffect(() => {
-    const t = setTimeout(() => load(), 300)
-    return () => clearTimeout(t)
-  }, [load])
+    invalidate()
+    await refetch()
+  }, [invalidate, refetch])
 
   const openDelete = (x: RoomTypeWithoutRoomsDTO) => {
     setTypeToDelete(x)
@@ -70,7 +56,8 @@ const RoomTypesTab: React.FC = () => {
       await roomTypesRequests.remove(typeToDelete.id)
       setConfirmOpen(false)
       setTypeToDelete(null)
-      await load()
+      invalidate()
+      await refetch()
     } catch (e) {
       alert(getApiErrorMessage(e))
     } finally {
@@ -101,7 +88,7 @@ const RoomTypesTab: React.FC = () => {
             }
             actions={
               <>
-                <button className={clsx('btn', 'btn-ghost')} onClick={load} disabled={loading}>Обновить</button>
+                <button className={clsx('btn', 'btn-ghost')} onClick={load} disabled={isLoading}>Обновить</button>
 
                 <button className={clsx('btn', 'btn-ghost')} type="button" onClick={() => { setSearch(''); setPage(1) }}>
                   Сбросить
@@ -115,9 +102,10 @@ const RoomTypesTab: React.FC = () => {
           />
         }
       >
-        {error && <div className={s.error}>{error}</div>}
+        {error && <div className={s.error}>{getApiErrorMessage(error)}</div>}
+        {(isFetching && isPlaceholderData) && <div className={s.muted} style={{ fontSize: 12 }}>Обновление…</div>}
 
-        {loading ? (
+        {isLoading && !data ? (
           <div className={s.muted}>Загрузка…</div>
         ) : (
           <>
@@ -168,7 +156,7 @@ const RoomTypesTab: React.FC = () => {
         open={modalOpen}
         initial={editing}
         onClose={() => setModalOpen(false)}
-        onSaved={load}
+        onSaved={() => { invalidate(); refetch() }}
       />
     </>
   )

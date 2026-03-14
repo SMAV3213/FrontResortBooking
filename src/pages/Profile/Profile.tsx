@@ -5,6 +5,7 @@ import ConfirmModal from '../../modals/ConfirmModal/ConfirmModal'
 import Pagination from '../../components/Pagination/Pagination'
 
 import { useAuth } from '../../auth/AuthProvider'
+import { useMyBookings } from '../../api/queries'
 import { bookingRequests, userRequests } from '../../api'
 import { getApiErrorMessage } from '../../api/getApiErrorMessage'
 
@@ -30,6 +31,12 @@ const daysUntil = (date: Date) => Math.ceil((startOfDayTs(date) - startOfDayTs(n
 const canCancelByStatus = (status: string) => status === 'Created' || status === 'Confirmed'
 const toDateTimeParam = (d: string) => (d ? `${d}T00:00:00` : undefined)
 
+const pad2 = (n: number) => String(n).padStart(2, '0')
+const todayDateOnly = () => {
+  const d = new Date()
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+}
+
 const Profile: React.FC = () => {
   const { user, refreshMe } = useAuth()
 
@@ -46,16 +53,26 @@ const Profile: React.FC = () => {
   })
 
   const [status, setStatus] = React.useState<'' | 'Created' | 'Confirmed' | 'Cancelled' | 'Completed'>('')
-  const [checkInFrom, setCheckInFrom] = React.useState<string>('') // YYYY-MM-DD
-  const [checkInTo, setCheckInTo] = React.useState<string>('')     // YYYY-MM-DD
+  const [checkInFrom, setCheckInFrom] = React.useState<string>('')
+  const [checkInTo, setCheckInTo] = React.useState<string>('')
 
   const [mode, setMode] = React.useState<'upcoming' | 'all' | 'past'>('upcoming')
-  const [bookings, setBookings] = React.useState<BookingDTO[]>([])
-  const [bookingsLoading, setBookingsLoading] = React.useState(false)
-  const [bookingsError, setBookingsError] = React.useState<string | null>(null)
   const [page, setPage] = React.useState(1)
   const pageSize = 10
-  const [total, setTotal] = React.useState(0)
+
+  const today = todayDateOnly()
+  const { data, isLoading: bookingsLoading, isFetching, isPlaceholderData, error: bookingsError, refetch: loadBookings } = useMyBookings({
+    page,
+    pageSize,
+    status: status || undefined,
+    checkInFrom: mode === 'upcoming' ? toDateTimeParam(today) : toDateTimeParam(checkInFrom),
+    checkInTo: mode === 'past' ? toDateTimeParam(today) : toDateTimeParam(checkInTo),
+    sortBy: 'checkIn',
+    sortDir: mode === 'upcoming' ? 'asc' : 'desc',
+  })
+
+  const bookings = data?.items ?? []
+  const total = data?.total ?? 0
 
   React.useEffect(() => {
     setForm({
@@ -64,49 +81,9 @@ const Profile: React.FC = () => {
     })
   }, [user?.id, user?.email, user?.phoneNumber])
 
-  const loadBookings = React.useCallback(async () => {
-    setBookingsError(null)
-    setBookingsLoading(true)
-
-    try {
-      const today = todayDateOnly()
-
-      const res = await bookingRequests.getMy({
-        page,
-        pageSize,
-        status: status || undefined,
-
-        checkInFrom: mode === 'upcoming' ? toDateTimeParam(today) : toDateTimeParam(checkInFrom),
-        checkInTo: mode === 'past' ? toDateTimeParam(today) : toDateTimeParam(checkInTo),
-
-        sortBy: 'checkIn',
-        sortDir: mode === 'upcoming' ? 'asc' : 'desc',
-      })
-
-      setBookings(res.items)
-      setTotal(res.total)
-    } catch (e) {
-      setBookings([])
-      setTotal(0)
-      setBookingsError(getApiErrorMessage(e))
-    } finally {
-      setBookingsLoading(false)
-    }
-  }, [page, status, checkInFrom, checkInTo, mode])
-
   React.useEffect(() => {
     refreshMe()
   }, [refreshMe])
-
-  React.useEffect(() => {
-    loadBookings()
-  }, [loadBookings])
-
-  const pad2 = (n: number) => String(n).padStart(2, '0')
-  const todayDateOnly = () => {
-    const d = new Date()
-    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
-  }
 
   const onSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -277,14 +254,17 @@ const Profile: React.FC = () => {
                 </button>
               </div>
             </div>
-            <button className={clsx('btn', 'btn-ghost')} type="button" onClick={loadBookings} disabled={bookingsLoading}>
+            <button className={clsx('btn', 'btn-ghost')} type="button" onClick={() => loadBookings()} disabled={bookingsLoading}>
               {bookingsLoading ? 'Обновляем…' : 'Обновить'}
             </button>
           </div>
 
-          {bookingsError && <div className={s.error}>{bookingsError}</div>}
+          {bookingsError && <div className={s.error}>{getApiErrorMessage(bookingsError)}</div>}
+          {(isFetching && isPlaceholderData) && (
+            <div className={s.muted} style={{ fontSize: 12 }}>Обновление…</div>
+          )}
 
-          {bookingsLoading ? (
+          {bookingsLoading && !data ? (
             <div className={s.muted}>Загружаем бронирования…</div>
           ) : bookings.length === 0 ? (
             <div className={s.muted}>У вас пока нет бронирований.</div>

@@ -6,6 +6,7 @@ import Pagination from '../../../../components/Pagination/Pagination'
 import AdminListToolbar from '../AdminToolBar'
 import ConfirmModal from '../../../../modals/ConfirmModal/ConfirmModal'
 
+import { useBookingsList, useBookingsToday, useInvalidateBookings } from '../../../../api/queries'
 import { bookingRequests, userRequests, roomRequests, roomTypesRequests } from '../../../../api'
 import { getApiErrorMessage } from '../../../../api/getApiErrorMessage'
 import type { BookingDTO, BookingStatus } from '../../../../types/bookingDTOs'
@@ -53,16 +54,9 @@ const SORT_OPTIONS: { value: 'checkIn' | 'createdAt' | 'totalPrice'; label: stri
   { value: 'totalPrice', label: 'По цене' },
 ]
 
-const MINI_TAKE = 5
-
 const BookingsTab: React.FC = () => {
-  const [items, setItems] = React.useState<BookingDTO[]>([])
-  const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
-
   const [page, setPage] = React.useState(1)
   const pageSize = 20
-  const [total, setTotal] = React.useState(0)
 
   const [status, setStatus] = React.useState<'' | BookingStatus>('')
 
@@ -70,30 +64,46 @@ const BookingsTab: React.FC = () => {
   const [roomOpt, setRoomOpt] = React.useState<SearchOption<RoomDTO> | null>(null)
   const [roomTypeOpt, setRoomTypeOpt] = React.useState<SearchOption<RoomTypeWithoutRoomsDTO> | null>(null)
 
-  const [from, setFrom] = React.useState<string>('') // legacy
-  const [to, setTo] = React.useState<string>('')     // legacy
+  const [from, setFrom] = React.useState<string>('')
+  const [to, setTo] = React.useState<string>('')
 
-  const [checkInFrom, setCheckInFrom] = React.useState<string>('')   // YYYY-MM-DD
-  const [checkInTo, setCheckInTo] = React.useState<string>('')       // YYYY-MM-DD
-  const [checkOutFrom, setCheckOutFrom] = React.useState<string>('') // YYYY-MM-DD
-  const [checkOutTo, setCheckOutTo] = React.useState<string>('')     // YYYY-MM-DD
+  const [checkInFrom, setCheckInFrom] = React.useState<string>('')
+  const [checkInTo, setCheckInTo] = React.useState<string>('')
+  const [checkOutFrom, setCheckOutFrom] = React.useState<string>('')
+  const [checkOutTo, setCheckOutTo] = React.useState<string>('')
 
   const [sortBy, setSortBy] = React.useState<'checkIn' | 'createdAt' | 'totalPrice'>('checkIn')
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc')
 
   const [showAdvanced, setShowAdvanced] = React.useState(false)
 
-  // TODAY widgets
-  const [todayIn, setTodayIn] = React.useState<BookingDTO[]>([])
-  const [todayOut, setTodayOut] = React.useState<BookingDTO[]>([])
-  const [todayLoading, setTodayLoading] = React.useState(false)
-  const [todayError, setTodayError] = React.useState<string | null>(null)
+  const listParams = {
+    page,
+    pageSize,
+    status: status || undefined,
+    userId: userOpt?.value,
+    roomId: roomOpt?.value,
+    roomTypeId: roomTypeOpt?.value,
+    from: toDateTimeParam(from),
+    to: toDateTimeParam(to),
+    checkInFrom: toDateTimeParam(checkInFrom),
+    checkInTo: toDateTimeParam(checkInTo),
+    checkOutFrom: toDateTimeParam(checkOutFrom),
+    checkOutTo: toDateTimeParam(checkOutTo),
+    sortBy,
+    sortDir,
+  }
 
-  // EDIT modal
+  const { data: listData, isLoading: loading, isFetching, isPlaceholderData, error, refetch: refetchMain } = useBookingsList(listParams)
+  const items = listData?.items ?? []
+  const total = listData?.total ?? 0
+
+  const { todayIn, todayOut, todayLoading, todayError, refetchToday } = useBookingsToday()
+  const invalidate = useInvalidateBookings()
+
   const [editOpen, setEditOpen] = React.useState(false)
   const [editing, setEditing] = React.useState<BookingDTO | null>(null)
 
-  // CONFIRM cancel modal
   const [confirmOpen, setConfirmOpen] = React.useState(false)
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const [bookingToCancel, setBookingToCancel] = React.useState<BookingDTO | null>(null)
@@ -125,105 +135,9 @@ const BookingsTab: React.FC = () => {
     }))
   }, [])
 
-  const loadToday = React.useCallback(async () => {
-    setTodayError(null)
-    setTodayLoading(true)
-
-    try {
-      const { start, end } = todayRangeDateOnly()
-
-      const inRes = await bookingRequests.getAll({
-        page: 1,
-        pageSize: MINI_TAKE,
-        checkInFrom: toDateTimeParam(start),
-        checkInTo: toDateTimeParam(end),
-        sortBy: 'checkIn',
-        sortDir: 'asc',
-      })
-
-      const outRes = await bookingRequests.getAll({
-        page: 1,
-        pageSize: MINI_TAKE,
-        checkOutFrom: toDateTimeParam(start),
-        checkOutTo: toDateTimeParam(end),
-        sortBy: 'checkIn',
-        sortDir: 'asc',
-      })
-
-      setTodayIn(inRes.items)
-      setTodayOut(outRes.items)
-    } catch (e) {
-      setTodayIn([])
-      setTodayOut([])
-      setTodayError(getApiErrorMessage(e))
-    } finally {
-      setTodayLoading(false)
-    }
-  }, [])
-
-  const loadMain = React.useCallback(async () => {
-    setError(null)
-    setLoading(true)
-
-    try {
-      const res = await bookingRequests.getAll({
-        page,
-        pageSize,
-
-        status: status || undefined,
-        userId: userOpt?.value,
-        roomId: roomOpt?.value,
-        roomTypeId: roomTypeOpt?.value,
-
-        from: toDateTimeParam(from),
-        to: toDateTimeParam(to),
-
-        checkInFrom: toDateTimeParam(checkInFrom),
-        checkInTo: toDateTimeParam(checkInTo),
-        checkOutFrom: toDateTimeParam(checkOutFrom),
-        checkOutTo: toDateTimeParam(checkOutTo),
-
-        sortBy,
-        sortDir,
-      })
-
-      setItems(res.items)
-      setTotal(res.total)
-    } catch (e) {
-      setItems([])
-      setTotal(0)
-      setError(getApiErrorMessage(e))
-    } finally {
-      setLoading(false)
-    }
-  }, [
-    page,
-    pageSize,
-    status,
-    userOpt,
-    roomOpt,
-    roomTypeOpt,
-    from,
-    to,
-    checkInFrom,
-    checkInTo,
-    checkOutFrom,
-    checkOutTo,
-    sortBy,
-    sortDir,
-  ])
-
-  React.useEffect(() => {
-    loadToday()
-  }, [loadToday])
-
-  React.useEffect(() => {
-    const t = setTimeout(() => loadMain(), 250)
-    return () => clearTimeout(t)
-  }, [loadMain])
-
   const refreshAll = async () => {
-    await Promise.all([loadToday(), loadMain()])
+    invalidate()
+    await Promise.all([refetchToday(), refetchMain()])
   }
 
   const openCancelConfirm = (b: BookingDTO) => {
@@ -238,7 +152,8 @@ const BookingsTab: React.FC = () => {
       await bookingRequests.cancel(bookingToCancel.id)
       setConfirmOpen(false)
       setBookingToCancel(null)
-      await refreshAll()
+      invalidate()
+      await Promise.all([refetchToday(), refetchMain()])
     } catch (e) {
       alert(getApiErrorMessage(e))
     } finally {
@@ -526,7 +441,7 @@ const BookingsTab: React.FC = () => {
             }
             actions={
               <>
-                <button className={clsx('btn', 'btn-ghost')} type="button" onClick={refreshAll} disabled={loading || todayLoading}>
+                <button className={clsx('btn', 'btn-ghost')} type="button" onClick={refreshAll} disabled={loading}>
                   Обновить всё
                 </button>
 
@@ -547,7 +462,7 @@ const BookingsTab: React.FC = () => {
               </button>
             </div>
 
-            {todayError && <div className={s.error}>{todayError}</div>}
+            {todayError && <div className={s.error}>{getApiErrorMessage(todayError)}</div>}
             {todayLoading ? (
               <div className={s.muted}>Загрузка…</div>
             ) : todayIn.length === 0 ? (
@@ -565,7 +480,7 @@ const BookingsTab: React.FC = () => {
               </button>
             </div>
 
-            {todayError && <div className={s.error}>{todayError}</div>}
+            {todayError && <div className={s.error}>{getApiErrorMessage(todayError)}</div>}
             {todayLoading ? (
               <div className={s.muted}>Загрузка…</div>
             ) : todayOut.length === 0 ? (
@@ -576,9 +491,10 @@ const BookingsTab: React.FC = () => {
           </div>
         </div>
 
-        {error && <div className={s.error}>{error}</div>}
+        {error && <div className={s.error}>{getApiErrorMessage(error)}</div>}
+        {(isFetching && isPlaceholderData) && <div className={s.muted} style={{ fontSize: 12 }}>Обновление…</div>}
 
-        {loading ? (
+        {loading && !listData ? (
           <div className={s.muted}>Загрузка…</div>
         ) : (
           <>

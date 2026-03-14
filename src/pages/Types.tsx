@@ -3,56 +3,48 @@ import TypeList from '../components/TypeList/TypeCardList'
 import TypeInfo from '../components/TypeInfo/TypeInfo'
 import Pagination from '../components/Pagination/Pagination'
 
-import { roomTypesRequests } from '../api'
+import { useRoomTypesList } from '../api/queries'
 import { getApiErrorMessage } from '../api/getApiErrorMessage'
 import type { RoomTypeWithoutRoomsDTO } from '../types/roomTypeDTOs'
 
-const Types: React.FC = () => {
-    const [items, setItems] = React.useState<RoomTypeWithoutRoomsDTO[]>([])
-    const [loading, setLoading] = React.useState(false)
-    const [error, setError] = React.useState<string | null>(null)
+const pageSize = 12
 
+const Types: React.FC = () => {
     const [page, setPage] = React.useState(1)
-    const pageSize = 12
-    const [total, setTotal] = React.useState(0)
+    const { data, isLoading, isFetching, error, isPlaceholderData } = useRoomTypesList({
+        page,
+        pageSize,
+        sortBy: 'name',
+        sortDir: 'asc',
+    })
+
+    const items = data?.items ?? []
+    const total = data?.total ?? 0
 
     const [selectedId, setSelectedId] = React.useState<string | null>(null)
     const [selected, setSelected] = React.useState<RoomTypeWithoutRoomsDTO | null>(null)
     const [open, setOpen] = React.useState(false)
 
-    const load = React.useCallback(async () => {
-        setLoading(true)
-        setError(null)
-        try {
-            const res = await roomTypesRequests.getAll({ page, pageSize, sortBy: 'name', sortDir: 'asc' })
-            setItems(res.items)
-            setTotal(res.total)
-
-            setSelectedId(res.items[0]?.id ?? null)
-            setSelected(res.items[0] ?? null)
-        } catch (e) {
-            setItems([])
-            setTotal(0)
-            setSelectedId(null)
-            setSelected(null)
-            setError(getApiErrorMessage(e))
-        } finally {
-            setLoading(false)
-        }
-    }, [page])
-
     React.useEffect(() => {
-        load()
-    }, [load])
+        setSelectedId(items[0]?.id ?? null)
+        setSelected(items[0] ?? null)
+    }, [items])
+
+    const errorMsg = error ? getApiErrorMessage(error) : null
 
     return (
         <>
             <div className="main">
-                {error && <div className="br-container" style={{ marginTop: 12 }}>{error}</div>}
-                {loading ? (
+                {errorMsg && <div className="br-container" style={{ marginTop: 12 }}>{errorMsg}</div>}
+                {isLoading && !data ? (
                     <div className="br-container" style={{ marginTop: 12, color: 'rgba(234,240,255,0.72)' }}>Загрузка…</div>
                 ) : (
                     <>
+                        {(isFetching && isPlaceholderData) && (
+                            <div className="br-container" style={{ marginTop: 8, fontSize: 12, color: 'rgba(234,240,255,0.6)' }}>
+                                Обновление…
+                            </div>
+                        )}
                         <TypeList
                             items={items}
                             selectedId={selectedId}

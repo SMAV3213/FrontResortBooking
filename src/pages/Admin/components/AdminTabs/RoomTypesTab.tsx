@@ -7,7 +7,8 @@ import Pagination from '../../../../components/Pagination/Pagination'
 import AdminListToolbar from '../AdminToolBar'
 import ConfirmModal from '../../../../modals/ConfirmModal/ConfirmModal'
 
-import { roomRequests, roomTypesRequests } from '../../../../api'
+import { useRoomsTabData, useInvalidateRooms, useInvalidateRoomTypes } from '../../../../api/queries'
+import { roomRequests } from '../../../../api'
 import { getApiErrorMessage } from '../../../../api/getApiErrorMessage'
 import type { RoomDTO } from '../../../../types/roomDTOs'
 import type { RoomTypeWithoutRoomsDTO } from '../../../../types/roomTypeDTOs'
@@ -15,65 +16,41 @@ import { roomStatusRu } from '../../../../shared/labels'
 
 import s from '../../admin.module.scss'
 
+const pageSize = 20
+
 const RoomsTab: React.FC = () => {
-  const [rooms, setRooms] = React.useState<RoomDTO[]>([])
-  const [total, setTotal] = React.useState(0)
-  const [types, setTypes] = React.useState<RoomTypeWithoutRoomsDTO[]>([])
-
-  const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
-
   const [page, setPage] = React.useState(1)
-  const pageSize = 20
-
   const [search, setSearch] = React.useState('')
   const [status, setStatus] = React.useState<'Available' | 'Occupied' | 'Maintenance' | ''>('')
   const [roomTypeId, setRoomTypeId] = React.useState<string>('')
   const [sortBy, setSortBy] = React.useState<'number' | 'status' | 'createdAt'>('number')
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('asc')
 
+  const { rooms, total, types, loading, isFetching, error, refetch } = useRoomsTabData({
+    page,
+    pageSize,
+    search: search.trim() || undefined,
+    status: status || undefined,
+    roomTypeId: roomTypeId || undefined,
+    sortBy,
+    sortDir,
+  })
+
+  const invalidateRooms = useInvalidateRooms()
+  const invalidateRoomTypes = useInvalidateRoomTypes()
+
+  const load = React.useCallback(async () => {
+    invalidateRooms()
+    invalidateRoomTypes()
+    await refetch()
+  }, [invalidateRooms, invalidateRoomTypes, refetch])
+
   const [modalOpen, setModalOpen] = React.useState(false)
   const [editing, setEditing] = React.useState<RoomDTO | null>(null)
 
-  // confirm delete
   const [confirmOpen, setConfirmOpen] = React.useState(false)
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const [roomToDelete, setRoomToDelete] = React.useState<RoomDTO | null>(null)
-
-  const load = React.useCallback(async () => {
-    setError(null)
-    setLoading(true)
-    try {
-      const [roomsRes, typesRes] = await Promise.all([
-        roomRequests.getAll({
-          page,
-          pageSize,
-          search: search.trim() || undefined,
-          status: status || undefined,
-          roomTypeId: roomTypeId || undefined,
-          sortBy,
-          sortDir,
-        }),
-        roomTypesRequests.getAll({ page: 1, pageSize: 100, sortBy: 'name', sortDir: 'asc' }),
-      ])
-
-      setRooms(roomsRes.items)
-      setTotal(roomsRes.total)
-      setTypes(typesRes.items)
-    } catch (e) {
-      setRooms([])
-      setTotal(0)
-      setTypes([])
-      setError(getApiErrorMessage(e))
-    } finally {
-      setLoading(false)
-    }
-  }, [page, pageSize, search, status, roomTypeId, sortBy, sortDir])
-
-  React.useEffect(() => {
-    const t = setTimeout(() => load(), 200)
-    return () => clearTimeout(t)
-  }, [load])
 
   const openDelete = (r: RoomDTO) => {
     setRoomToDelete(r)
@@ -87,7 +64,8 @@ const RoomsTab: React.FC = () => {
       await roomRequests.remove(roomToDelete.id)
       setConfirmOpen(false)
       setRoomToDelete(null)
-      await load()
+      invalidateRooms()
+      await refetch()
     } catch (e) {
       alert(getApiErrorMessage(e))
     } finally {
@@ -164,9 +142,10 @@ const RoomsTab: React.FC = () => {
           />
         }
       >
-        {error && <div className={s.error}>{error}</div>}
+        {error && <div className={s.error}>{getApiErrorMessage(error)}</div>}
+        {isFetching && <div className={s.muted} style={{ fontSize: 12 }}>Обновление…</div>}
 
-        {loading ? (
+        {loading && rooms.length === 0 ? (
           <div className={s.muted}>Загрузка…</div>
         ) : (
           <>

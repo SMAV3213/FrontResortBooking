@@ -7,6 +7,7 @@ import Pagination from '../../../../components/Pagination/Pagination'
 import AdminListToolbar from '../AdminToolBar'
 import ConfirmModal from '../../../../modals/ConfirmModal/ConfirmModal'
 
+import { useUsersList, useInvalidateUsers } from '../../../../api/queries'
 import { userRequests } from '../../../../api'
 import { getApiErrorMessage } from '../../../../api/getApiErrorMessage'
 import type { UserDTO, ERole } from '../../../../types/userDTOs'
@@ -14,58 +15,43 @@ import { roleRu } from '../../../../shared/labels'
 
 import s from '../../admin.module.scss'
 
+const pageSize = 20
+
 const UsersTab: React.FC = () => {
-  const [items, setItems] = React.useState<UserDTO[]>([])
-  const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState<string | null>(null)
-
   const [page, setPage] = React.useState(1)
-  const [total, setTotal] = React.useState(0)
-  const pageSize = 20
-
   const [search, setSearch] = React.useState('')
   const [roleFilter, setRoleFilter] = React.useState<'Admin' | 'User' | ''>('')
+
+  const { data, isLoading, isFetching, isPlaceholderData, error, refetch } = useUsersList({
+    page,
+    pageSize,
+    search: search.trim() || undefined,
+    role: roleFilter || undefined,
+    sortBy: 'login',
+    sortDir: 'asc',
+  })
+
+  const items = data?.items ?? []
+  const total = data?.total ?? 0
+  const invalidate = useInvalidateUsers()
 
   const [roleModalOpen, setRoleModalOpen] = React.useState(false)
   const [selectedUser, setSelectedUser] = React.useState<UserDTO | null>(null)
 
-  // confirm delete
   const [confirmOpen, setConfirmOpen] = React.useState(false)
   const [confirmLoading, setConfirmLoading] = React.useState(false)
   const [userToDelete, setUserToDelete] = React.useState<UserDTO | null>(null)
 
   const load = React.useCallback(async () => {
-    setError(null)
-    setLoading(true)
-    try {
-      const res = await userRequests.getAll({
-        page,
-        pageSize,
-        search: search.trim() || undefined,
-        role: roleFilter || undefined,
-        sortBy: 'login',
-        sortDir: 'asc',
-      })
-      setItems(res.items)
-      setTotal(res.total)
-    } catch (e) {
-      setItems([])
-      setTotal(0)
-      setError(getApiErrorMessage(e))
-    } finally {
-      setLoading(false)
-    }
-  }, [page, pageSize, search, roleFilter])
-
-  React.useEffect(() => {
-    const t = setTimeout(() => load(), 300)
-    return () => clearTimeout(t)
-  }, [load])
+    invalidate()
+    await refetch()
+  }, [invalidate, refetch])
 
   const changeRole = async (userId: string, role: ERole) => {
     try {
       await userRequests.changeRole(userId, { role })
-      await load()
+      invalidate()
+      await refetch()
     } catch (e) {
       alert(getApiErrorMessage(e))
     }
@@ -83,7 +69,8 @@ const UsersTab: React.FC = () => {
       await userRequests.remove(userToDelete.id)
       setConfirmOpen(false)
       setUserToDelete(null)
-      await load()
+      invalidate()
+      await refetch()
     } catch (e) {
       alert(getApiErrorMessage(e))
     } finally {
@@ -113,7 +100,7 @@ const UsersTab: React.FC = () => {
             }
             actions={
               <>
-                <button className={clsx('btn', 'btn-ghost')} onClick={load} disabled={loading}>Обновить</button>
+                <button className={clsx('btn', 'btn-ghost')} onClick={load} disabled={isLoading}>Обновить</button>
                 <button className={clsx('btn', 'btn-ghost')} type="button" onClick={() => { setSearch(''); setRoleFilter(''); setPage(1) }}>
                   Сбросить
                 </button>
@@ -122,9 +109,10 @@ const UsersTab: React.FC = () => {
           />
         }
       >
-        {error && <div className={s.error}>{error}</div>}
+        {error && <div className={s.error}>{getApiErrorMessage(error)}</div>}
+        {(isFetching && isPlaceholderData) && <div className={s.muted} style={{ fontSize: 12 }}>Обновление…</div>}
 
-        {loading ? (
+        {isLoading && !data ? (
           <div className={s.muted}>Загрузка…</div>
         ) : (
           <>
